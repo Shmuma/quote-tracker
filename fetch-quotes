@@ -1,0 +1,14 @@
+#!/usr/bin/python
+
+import settings
+
+print 'Content-Type: text/plain'
+print ''
+
+# In data store check options about max check interval
+# In data store check last update timestamp
+store = settings.SettingsStore ()
+
+
+
+print 'OK'
