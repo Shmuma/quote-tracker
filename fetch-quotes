@@ -1,14 +1,16 @@
 #!/usr/bin/python
 
-import settings
+from settings import getSettingsCacher
 
 print 'Content-Type: text/plain'
 print ''
 
 # In data store check options about max check interval
 # In data store check last update timestamp
-store = settings.SettingsStore ()
-
-
+c_sett = getSettingsCacher ()
+sett = c_sett.get ()
+print sett
+sett["test_value"] = 124
+c_sett.set (sett)
 
 print 'OK'
