@@ -1,0 +1,45 @@
+<html>
+  <body>
+    {% if instruments %}
+    <b>Current instruments</b><br/>
+    <table width="" border="0" cellpadding="10">
+      <tr>
+        <th style="border: solid black 1px">Symbol</th>
+        <th>Source</th>
+      </tr>
+      {% for instr in instruments %}
+      <tr>
+        <td>{{ instr.symbol }}</td>
+        <td>{{ instr.source }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <b>Instrument list is empty</b><br/>
+    {% endif %}
+
+    <br/>
+    <b>Add new instrument</b>
+    <form method="instruments" id="" action="">
+      <table width="" cellspacing="" cellpadding="" border="0">
+        <!-- Symbol -->
+        <tr>
+          <td><label for="symbol">Symbol:</label></td>
+          <td><input type="text" name="symbol" id="symbol"/></td>
+        </tr>
+        <!-- data source -->
+        <tr>
+          <td><label for="source">Source:</label></td>
+          <td>
+            <select name="source" id="source">
+              <option value="finam.rts">Finam.ru RTS</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td colspan=2><input type="submit" value="Add" name="add"/></td>
+        </tr>
+      </table>
+    </form>
+  </body>
+</html>

@@ -9,8 +9,8 @@ print ''
 # In data store check last update timestamp
 c_sett = getSettingsCacher ()
 sett = c_sett.get ()
-print sett
-sett["test_value"] = 124
-c_sett.set (sett)
+check_interval = sett['max_check_interval']
+
+
 
 print 'OK'

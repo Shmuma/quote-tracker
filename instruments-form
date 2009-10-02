@@ -1,0 +1,51 @@
+#!/usr/bin/python
+
+import os
+from instruments import *
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext.webapp import template
+from google.appengine.ext import db
+
+
+class InstrumentsPage (webapp.RequestHandler):
+    def render (self, args, page):
+        path = os.path.join (os.path.dirname (__file__), page)
+        self.response.out.write (template.render (path, args))
+
+
+    def message (self, msg):
+        self.render ({'message' : msg}, "action.html")
+
+
+    def add (self):
+        # check for arguments
+        symbol = self.request.get ("symbol")
+        source = self.request.get ("source")
+
+        if not symbol or not source:
+            self.message ('Required arguments not valid')
+        instr = Instrument (symbol = symbol, source = source)
+        instr.put ()
+        self.message ('"%s" added to symbols list' % symbol)
+
+    def get (self):
+        if self.request.get ("add"):
+            self.add ()
+        else:
+            query = db.GqlQuery ("select * from Instrument order by symbol")
+            res = []
+            for inst in query:
+                res.append (inst)
+
+            self.render ({'instruments' : res}, "instruments.html")
+
+
+app = webapp.WSGIApplication ([('/instruments', InstrumentsPage)], debug=True)
+
+
+def main ():
+    run_wsgi_app (app)
+
+if __name__ == "__main__":
+    main ()
