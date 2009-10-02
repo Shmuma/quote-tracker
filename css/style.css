@@ -1,3 +1,9 @@
-td {
-    border: solid black 1px
+table {
+	border-collapse: collapse;
+//	margin: 0 auto 1em auto;
+	font-size: 100%;
+}
+
+td,th {
+    border: 1px solid #333
 }

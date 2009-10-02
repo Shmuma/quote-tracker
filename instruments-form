@@ -25,9 +25,11 @@ class InstrumentsPage (webapp.RequestHandler):
 
         if not symbol or not source:
             self.message ('Required arguments not valid')
+            return
         instr = Instrument (symbol = symbol, source = source)
         instr.put ()
         self.message ('"%s" added to symbols list' % symbol)
+
 
     def get (self):
         if self.request.get ("add"):

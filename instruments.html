@@ -1,11 +1,11 @@
 <html>
   <head>
-    <link rel="/css/style.css" href="url" type="text/css" media="screen" />
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="screen" />
   </head>
   <body>
     {% if instruments %}
     <b>Current instruments</b><br/>
-    <table width="" border="0" cellpadding="10">
+    <table cellspacing="0" cellpadding="6">
       <tr>
         <th>Symbol</th>
         <th>Source</th>
@@ -38,11 +38,9 @@
               <option value="finam.rts">Finam.ru RTS</option>
             </select>
           </td>
-        </tr>
-        <tr>
-          <td colspan=2><input type="submit" value="Add" name="add"/></td>
-        </tr>
+        </tr>     
       </table>
+      <input type="submit" value="Add" name="add"/>
     </form>
   </body>
 </html>
