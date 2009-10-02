@@ -7,7 +7,7 @@ handlers:
 - url: /css
   static_dir: css
 
-- url: /instruments
+- url: /instruments/?(.+)?
   script: instruments-form
 
 - url: /fetch-quotes

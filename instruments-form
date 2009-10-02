@@ -31,8 +31,10 @@ class InstrumentsPage (webapp.RequestHandler):
         self.message ('"%s" added to symbols list' % symbol)
 
 
-    def get (self):
-        if self.request.get ("add"):
+    def get (self, symbol):
+        if symbol:
+            self.message ("We're going to edit symbol %s" % symbol)
+        elif self.request.get ("add"):
             self.add ()
         else:
             query = db.GqlQuery ("select * from Instrument order by symbol")
@@ -43,7 +45,8 @@ class InstrumentsPage (webapp.RequestHandler):
             self.render ({'instruments' : res}, "instruments.html")
 
 
-app = webapp.WSGIApplication ([('/instruments', InstrumentsPage)], debug=True)
+
+app = webapp.WSGIApplication ([('/instruments/?(.+)?', InstrumentsPage)], debug=True)
 
 
 def main ():
