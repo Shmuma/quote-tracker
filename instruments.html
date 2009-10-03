@@ -11,12 +11,14 @@
         <th>№</th>
         <th>Symbol</th>
         <th>Source</th>
+        <th>Last data</th>
       </tr>
       {% for instr in instruments %}
       <tr>
         <td>{{ instr.index }}</td>
         <td>{{ instr.symbol }}</td>
         <td>{{ instr.source }}</td>
+        <td>{{ instr.last_data }}</td>
         <td>
           <a href="/instruments/{{ instr.symbol }}">Edit</a>
         </td>
@@ -44,6 +46,7 @@
           <td><label for="source">Source:</label></td>
           <td>
             <select name="source" id="source">
+              <option value="yahoo">Yahoo</option>
               <option value="finam.rts">Finam.ru RTS</option>
             </select>
           </td>

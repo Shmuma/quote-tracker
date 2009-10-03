@@ -5,7 +5,8 @@ from google.appengine.ext import db
 
 class Instrument (db.Model):
     symbol = db.StringProperty (required = True)
-    source = db.StringProperty (required = True, choices = ['finam.rts'])
+    source = db.StringProperty (required = True, choices = ['finam.rts', 'yahoo'])
+    last_data = db.DateProperty (required = False)
 
     @classmethod
     def by_symbol (cls, symbol):

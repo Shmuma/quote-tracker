@@ -1,16 +1,36 @@
 #!/usr/bin/python
 
 from settings import getSettingsCacher
+from instruments import *
+from quotes import *
+import datetime
 
 print 'Content-Type: text/plain'
 print ''
 
-# In data store check options about max check interval
-# In data store check last update timestamp
-c_sett = getSettingsCacher ()
-sett = c_sett.get ()
-check_interval = sett['max_check_interval']
+inst = Instrument.by_symbol ("MSFT")
 
+if inst == None:
+    print "MSFT not found"
+    exit ()
 
+source = sourceInstance (inst.source)
+
+print source.fetch ("MSFT", datetime.date (1900, 1, 1))
+
+exit ()
+
+index = 0
+while True:
+    instrs = Instrument.all ().fetch (1000, index)
+    if len (instrs) == 0:
+        break
+    index += len (instrs)
+
+    for instr in instrs:
+        if instr.source == 'yahoo':
+            print 'Process %s...' % instr.symbol
+        else:
+            print 'Skip %s...' % instr.symbol
 
 print 'OK'
