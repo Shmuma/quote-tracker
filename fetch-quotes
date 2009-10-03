@@ -8,18 +8,6 @@ import datetime
 print 'Content-Type: text/plain'
 print ''
 
-inst = Instrument.by_symbol ("MSFT")
-
-if inst == None:
-    print "MSFT not found"
-    exit ()
-
-source = sourceInstance (inst.source)
-
-print source.fetch ("MSFT", datetime.date (1900, 1, 1))
-
-exit ()
-
 index = 0
 while True:
     instrs = Instrument.all ().fetch (1000, index)
@@ -27,10 +15,22 @@ while True:
         break
     index += len (instrs)
 
-    for instr in instrs:
-        if instr.source == 'yahoo':
-            print 'Process %s...' % instr.symbol
-        else:
-            print 'Skip %s...' % instr.symbol
+    for inst in instrs:
+        source = sourceInstance (inst.source)
+        start = inst.last_data
+        if start == None:
+            start = datetime.date (1800, 1, 1)
+        count = 0
+        results = source.fetch (inst.symbol, start)
+        
+        for result in results:
+            result.put ()
+            if result.date > start:
+                start = result.date
+            count = count + 1
+
+        inst.last_data = start
+        inst.put ()
+        print 'Symbol %(sym)s processed, %(count)d items added up to %(date)s' % {'sym' : inst.symbol, 'count' : count, 'date' : start.isoformat ()}
 
 print 'OK'

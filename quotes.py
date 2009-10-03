@@ -51,7 +51,19 @@ class YahooSource (Source):
         r = conn.getresponse ()
         res = r.read ()
         conn.close ()
-        return res
+        result = []
+        for l in res.split ("\n")[1:]:
+            if l == '':
+                continue
+            arr = l.split (',')
+            date = arr[0].split ('-')
+            result.append (Quote (date = datetime.date (int (date[0]), int (date[1]), int (date[2])),
+                                  open = float (arr[1]),
+                                  high = float (arr[2]),
+                                  low  = float (arr[3]),
+                                  close = float (arr[4]),
+                                  volume = long (arr[5])))
+        return result
 
 
 class FinamSource (Source):
