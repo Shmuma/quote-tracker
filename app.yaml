@@ -4,6 +4,9 @@ runtime: python
 api_version: 1
 
 handlers:
+- url: /
+  script: index
+
 - url: /css
   static_dir: css
 
@@ -16,3 +19,5 @@ handlers:
 - url: /settings
   script: settings-form
 
+- url: /quotes/(.+)
+  script: get-quotes

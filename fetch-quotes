@@ -9,6 +9,8 @@ from google.appengine.ext import db
 print 'Content-Type: text/plain'
 print ''
 
+limit = 300
+
 total = index = 0
 while True:
     instrs = Instrument.all ().fetch (1000, index)
@@ -21,7 +23,8 @@ while True:
         start = inst.last_data
         if start == None:
             start = datetime.date (1800, 1, 1)
-        if start == datetime.date.today ():
+        start = start + datetime.timedelta (1)
+        if start >= datetime.date.today ():
             continue
         count = 0
         results = source.fetch (inst.symbol, start)
@@ -32,12 +35,14 @@ while True:
                 start = result.date
             count = count + 1
             total = total + 1
-            if total > 100:
+            if total >= limit:
                 break
 
         inst.last_data = start
         inst.put ()
         print 'Symbol %(sym)s processed, %(count)d items added up to %(date)s' % {'sym' : inst.symbol, 'count' : count, 'date' : start.isoformat ()}
+        if total >= limit:
+            break
 
 print 'OK'
 

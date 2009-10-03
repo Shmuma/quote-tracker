@@ -16,7 +16,7 @@
       {% for instr in instruments %}
       <tr>
         <td>{{ instr.index }}</td>
-        <td>{{ instr.symbol }}</td>
+        <td><a href="/quotes/{{ instr.symbol }}">{{ instr.symbol }}</a></td>
         <td>{{ instr.source }}</td>
         <td>{{ instr.last_data }}</td>
         <td>

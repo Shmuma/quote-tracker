@@ -1,0 +1,29 @@
+#!/usr/bin/python
+
+import os
+from instruments import *
+from quotes import *
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext.webapp import template
+from google.appengine.ext import db
+
+
+class QuotesPage (webapp.RequestHandler):
+    def get (self, symbol):
+        self.response.headers['Conetnt-Type'] = 'text/html'
+
+        q = db.GqlQuery ("select * from Quote where symbol = :1 order by date", symbol)
+        quotes = q.fetch (200);
+        for quote in quotes:
+            self.response.out.write ('%f,%f,%f,%f' % [quote.open, quote.close, quote.high, quote.low])
+
+
+app = webapp.WSGIApplication ([('/quotes/(.+)', QuotesPage)], debug=True)
+
+
+def main ():
+    run_wsgi_app (app)
+
+if __name__ == "__main__":
+    main ()
