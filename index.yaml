@@ -2,4 +2,4 @@ indexes:
 - kind: Quote
   properties:
   - name: symbol
-  - name: symbol
+  - name: date

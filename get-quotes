@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import datetime
 from instruments import *
 from quotes import *
 from google.appengine.ext import webapp
@@ -11,12 +12,12 @@ from google.appengine.ext import db
 
 class QuotesPage (webapp.RequestHandler):
     def get (self, symbol):
-        self.response.headers['Conetnt-Type'] = 'text/html'
+        self.response.headers['Content-Type'] = 'text/plain'
 
         q = db.GqlQuery ("select * from Quote where symbol = :1 order by date", symbol)
         quotes = q.fetch (200);
         for quote in quotes:
-            self.response.out.write ('%f,%f,%f,%f' % [quote.open, quote.close, quote.high, quote.low])
+            self.response.out.write ('%s,%f,%f,%f,%f\n' % (quote.date.isoformat (), quote.open, quote.close, quote.high, quote.low))
 
 
 app = webapp.WSGIApplication ([('/quotes/(.+)', QuotesPage)], debug=True)
