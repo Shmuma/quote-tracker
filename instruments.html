@@ -1,5 +1,6 @@
 <html>
   <head>
+    <title>Instruments list</title>
     <link rel="stylesheet" href="/css/style.css" type="text/css" media="screen" />
   </head>
   <body>
@@ -7,13 +8,21 @@
     <b>Current instruments</b><br/>
     <table cellspacing="0" cellpadding="6">
       <tr>
+        <th>№</th>
         <th>Symbol</th>
         <th>Source</th>
       </tr>
       {% for instr in instruments %}
       <tr>
+        <td>{{ instr.index }}</td>
         <td>{{ instr.symbol }}</td>
         <td>{{ instr.source }}</td>
+        <td>
+          <a href="/instruments/{{ instr.symbol }}">Edit</a>
+        </td>
+        <td>
+          <a href="/instruments/{{ instr.symbol }}/del">Delete</a>
+        </td>
       </tr>
       {% endfor %}
     </table>
@@ -38,7 +47,7 @@
               <option value="finam.rts">Finam.ru RTS</option>
             </select>
           </td>
-        </tr>     
+        </tr>
       </table>
       <input type="submit" value="Add" name="add"/>
     </form>

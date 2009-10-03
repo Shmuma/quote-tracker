@@ -39,8 +39,11 @@ class InstrumentsPage (webapp.RequestHandler):
         else:
             query = db.GqlQuery ("select * from Instrument order by symbol")
             res = []
+            index = 1
             for inst in query:
+                inst.index = index
                 res.append (inst)
+                index = index + 1
 
             self.render ({'instruments' : res}, "instruments.html")
 
