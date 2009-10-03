@@ -2,6 +2,7 @@
 
 import os
 from instruments import *
+from quotes import *
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
@@ -62,6 +63,10 @@ class InstrumentsPage (webapp.RequestHandler):
             self.message ("Symbol %s not exists" % symbol)
         else:
             db.delete (instr)
+            # delete all quotes
+            q = Quote.gql ("where symbol = :1", symbol)
+            for quote in q:
+                quote.delete ()
             self.me ()
 
 

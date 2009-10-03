@@ -1,0 +1,4 @@
+cron:
+- description: fetch quotes
+  url: /fetch-quotes
+  schedule: every 10 minutes
