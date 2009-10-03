@@ -9,6 +9,9 @@ from google.appengine.ext import db
 
 
 class InstrumentsPage (webapp.RequestHandler):
+    def me (self):
+        self.redirect ("/instruments")
+
     def render (self, args, page):
         path = os.path.join (os.path.dirname (__file__), page)
         self.response.out.write (template.render (path, args))
@@ -26,27 +29,64 @@ class InstrumentsPage (webapp.RequestHandler):
         if not symbol or not source:
             self.message ('Required arguments not valid')
             return
-        instr = Instrument (symbol = symbol, source = source)
-        instr.put ()
-        self.message ('"%s" added to symbols list' % symbol)
+        instr = Instrument.by_symbol (symbol)
+        if instr != None:
+            self.message ('Symbol %s already exists' % symbol)
+        else:
+            instr = Instrument (symbol = symbol, source = source)
+            instr.put ()
+            self.me ()
+
+
+    def instruments (self):
+        """
+        Render instruments list
+        """
+        query = db.GqlQuery ("select * from Instrument order by symbol")
+        res = []
+        index = 1
+        for inst in query:
+            inst.index = index
+            res.append (inst)
+            index = index + 1
+
+        self.render ({'instruments' : res}, "instruments.html")
+
+
+    def delete (self, symbol):
+        """
+        Delete symbol from storage
+        """
+        instr = Instrument.by_symbol (symbol)
+        if instr == None:
+            self.message ("Symbol %s not exists" % symbol)
+        else:
+            db.delete (instr)
+            self.me ()
+
+
+    def edit (self, symbol):
+        """
+        Edit symbol
+        """
+        self.message ("Edit symbol %s. Not implemented so far." % symbol)
 
 
     def get (self, symbol):
         if symbol:
-            self.message ("We're going to edit symbol %s" % symbol)
+            l = symbol.split ("/")
+            sym = l[0]
+            op = ""
+            if len (l) > 1:
+                op = l[1]
+                if op == "del":
+                    self.delete (sym)
+            else:
+                self.edit (sym)
         elif self.request.get ("add"):
             self.add ()
         else:
-            query = db.GqlQuery ("select * from Instrument order by symbol")
-            res = []
-            index = 1
-            for inst in query:
-                inst.index = index
-                res.append (inst)
-                index = index + 1
-
-            self.render ({'instruments' : res}, "instruments.html")
-
+            self.instruments ()
 
 
 app = webapp.WSGIApplication ([('/instruments/?(.+)?', InstrumentsPage)], debug=True)
