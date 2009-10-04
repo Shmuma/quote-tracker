@@ -1,3 +1,3 @@
 #!/bin/sh
 
-socat -d TCP4-LISTEN:3128,fork,reuseaddr EXEC:./test.py
+socat -d TCP4-LISTEN:3128,fork,reuseaddr EXEC:./proxy.py
