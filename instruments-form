@@ -51,7 +51,7 @@ class InstrumentsPage (webapp.RequestHandler):
         """
         Render instruments list
         """
-        query = db.GqlQuery ("select * from Instrument order by symbol")
+        query = db.GqlQuery ("select * from Instrument order by source,symbol")
         res = []
         index = 1
         for inst in query:
