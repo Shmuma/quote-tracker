@@ -21,3 +21,6 @@ handlers:
 
 - url: /quotes/(.+)
   script: get-quotes
+
+- url: /update
+  script: update
