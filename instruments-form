@@ -10,6 +10,13 @@ from google.appengine.ext import db
 
 
 class InstrumentsPage (webapp.RequestHandler):
+    sources = [
+        { 'id' : 'yahoo',
+          'name' : 'Yahoo' },
+        { 'id' : 'rbc.micex',
+          'name' : 'RBC.Micex' },
+        ]
+
     def me (self):
         self.redirect ("/instruments")
 
@@ -51,7 +58,7 @@ class InstrumentsPage (webapp.RequestHandler):
             res.append (inst)
             index = index + 1
 
-        self.render ({'instruments' : res}, "instruments.html")
+        self.render ({'instruments' : res, 'sources' : self.sources}, "instruments.html")
 
 
     def delete (self, symbol):

@@ -5,7 +5,7 @@ from google.appengine.ext import db
 
 class Instrument (db.Model):
     symbol = db.StringProperty (required = True)
-    source = db.StringProperty (required = True, choices = ['finam.rts', 'yahoo'])
+    source = db.StringProperty (required = True)
     last_data = db.DateProperty (required = False)
 
     @classmethod

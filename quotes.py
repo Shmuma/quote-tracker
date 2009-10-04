@@ -24,22 +24,92 @@ def sourceInstance (source):
         return YahooSource ()
     elif source == 'finam.rts':
         return FinamSource ()
+    elif source == 'rbc.micex':
+        return RBCMicexSource ()
     else:
         return None
 
 
+def parseIsoDate (str):
+    """
+    Converts string of format YYYY-MM-DD to datetime object
+    """
+    d = str.split ("-")
+    return datetime.date (int (d[0]), int (d[1]), int (d[2]))
+
+
+
+
 class Source:
-    def fetch (symbol, start, finish = datetime.date.today (), period = 'day'):
+    def minDate (self):
+        """
+        Minimal date for fetch
+        """
+        return datetime.date (1970, 1, 1)
+
+    def fetchSimple (self, symbol, start):
+        return self.fetch (symbol, start, datetime.date.today (), 'day')
+
+    def fetch (self, symbol, start, finish, period):
         """
         fetches symbol's quotes and return array of quote object
         """
         return None
 
 
+class CsvHttpSource (Source):
+    def getRequest (self, symbol, start, finish, period):
+        return None
+
+    def getServer (self, symbol, period):
+        return None
+
+    def line2quote (self, symbol, period, arr):
+        return None
+
+    def needReverse (self):
+        return False
+
+    def fetch (self, symbol, start, finish, period):
+        result = []
+        try:
+            req = self.getRequest (symbol, start, finish, period)
+            conn = httplib.HTTPConnection (self.getServer (symbol, period))
+            conn.request ("GET", req)
+            r = conn.getresponse ()
+            res = r.read ()
+            conn.close ()
+            lines = res.split ("\n")
+            if self.needReverse ():
+                lines.reverse ()
+            for l in lines:
+                if l == '':
+                    continue
+                res = self.line2quote (symbol, period, l.split (','))
+                if res != None:
+                    result.append (res)
+        except:
+            pass
+        return result
+
+
 # http://ichart.finance.yahoo.com/table.csv?s=MSFT&d=9&e=3&f=2009&g=d&a=2&b=13&c=1986&ignore=.csv
-class YahooSource (Source):
-    def fetch (self, symbol, start, finish = datetime.date.today (), period = 'day'):
-        req = '/table.csv?s=%(sym)s&d=%(to_m)d&e=%(to_d)d&f=%(to_y)d&g=%(period)s&a=%(from_m)d&b=%(from_d)d&c=%(from_y)d&ignore=.csv' % {
+class YahooSource (CsvHttpSource):
+    def minDate (self):
+        """
+        Minimal date for fetch
+        """
+        return datetime.date (1800, 1, 1)
+
+    def getRequest (self, symbol, start, finish, period):
+        p = 'd'
+        if period == 'day':
+            p = 'd'
+        elif period == 'week':
+            p = 'w'
+        elif period == 'month':
+            p = 'm'
+        return '/table.csv?s=%(sym)s&d=%(to_m)d&e=%(to_d)d&f=%(to_y)d&g=%(period)s&a=%(from_m)d&b=%(from_d)d&c=%(from_y)d&ignore=.csv' % {
             'sym' : symbol,
             'to_m' : finish.month - 1,
             'to_d' : finish.day,
@@ -47,41 +117,60 @@ class YahooSource (Source):
             'from_m' : start.month - 1,
             'from_d' : start.day,
             'from_y' : start.year,
-            'period' : self.normalize_period (period)}
-        conn = httplib.HTTPConnection ("ichart.finance.yahoo.com")
-        conn.request ("GET", req)
-        r = conn.getresponse ()
-        res = r.read ()
-        conn.close ()
-        result = []
-        lines = res.split ("\n")[1:]
-        lines.reverse ()
-        for l in lines:
-            if l == '':
-                continue
-            arr = l.split (',')
-            date = arr[0].split ('-')
-            result.append (Quote (symbol = symbol,
-                                  date = datetime.date (int (date[0]), int (date[1]), int (date[2])),
-                                  open = float (arr[1]),
-                                  high = float (arr[2]),
-                                  low  = float (arr[3]),
-                                  close = float (arr[4]),
-                                  volume = long (arr[5]),
-                                  period = period))
-        return result
+            'period' : p}
 
+    def getServer (self, symbol, period):
+        return 'ichart.finance.yahoo.com'
 
-    def normalize_period (self, period):
-        if period == 'day':
-            return 'd'
-        elif period == 'week':
-            return 'w'
-        elif period == 'month':
-            return 'm'
-        else:
-            return 'd'
+    def needReverse (self):
+        return True
+
+    def line2quote (self, symbol, period, arr):
+        if arr[0] == 'Date' or len (arr) != 7:
+            return None
+        if arr[1] == '' or arr[2] == '' or arr[3] == '' or arr[4] == '':
+            return None
+        return Quote (symbol = symbol,
+                      date = parseIsoDate (arr[0]),
+                      open = float (arr[1]),
+                      high = float (arr[2]),
+                      low  = float (arr[3]),
+                      close = float (arr[4]),
+                      volume = long (arr[5]),
+                      period = period)
 
 
 class FinamSource (Source):
     pass
+
+
+# http://export.rbc.ru/expdocs/free.micex.0.shtml
+# http://export.rbc.ru/free/micex.0/free.fcgi?period=DAILY&tickers=AVAZ&d1=04&m1=10&y1=1990&d2=04&m2=10&y2=2009&separator=%2C&data_format=BROWSER&header=1
+class RBCMicexSource (CsvHttpSource):
+    def getRequest (self, symbol, start, finish, period):
+        return '/free/micex.0/free.fcgi?period=DAILY&tickers=%(sym)s&d1=%(f_d)d&m1=%(f_m)d&y1=%(f_y)d&d2=%(t_d)d&m2=%(t_m)d&y2=%(t_y)d&separator=%%2C&data_format=BROWSER&header=1' % {
+            'sym' : symbol,
+            'f_d' : start.day,
+            'f_m' : start.month,
+            'f_y' : start.year,
+            't_d' : finish.day,
+            't_m' : finish.month,
+            't_y' : finish.year,
+            }
+
+    def getServer (self, symbol, period):
+        return 'export.rbc.ru'
+
+    def line2quote (self, symbol, period, arr):
+        if len (arr) != 8 or arr[0] == 'TICKER':
+            return None
+        if arr[2] == '' or arr[3] == '' or arr[4] == '' or arr[5] == '':
+            return None
+        return Quote (symbol = symbol,
+                      date = parseIsoDate (arr[1]),
+                      open = float (arr[2]),
+                      close = float (arr[5]),
+                      high = float (arr[3]),
+                      low = float (arr[4]),
+                      volume = long (arr[6]),
+                      period = period)

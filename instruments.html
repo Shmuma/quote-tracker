@@ -46,8 +46,9 @@
           <td><label for="source">Source:</label></td>
           <td>
             <select name="source" id="source">
-              <option value="yahoo">Yahoo</option>
-              <option value="finam.rts">Finam.ru RTS</option>
+              {% for source in sources %}
+              <option value="{{ source.id }}">{{ source.name }}</option>
+              {% endfor %}
             </select>
           </td>
         </tr>

@@ -22,12 +22,12 @@ while True:
         source = sourceInstance (inst.source)
         start = inst.last_data
         if start == None:
-            start = datetime.date (1800, 1, 1)
+            start = source.minDate ()
         start = start + datetime.timedelta (1)
         if start >= datetime.date.today ():
             continue
         count = 0
-        results = source.fetch (inst.symbol, start)
+        results = source.fetchSimple (inst.symbol, start)
 
         for result in results:
             result.put ()
@@ -38,9 +38,12 @@ while True:
             if total >= limit:
                 break
 
-        inst.last_data = start
-        inst.put ()
-        print 'Symbol %(sym)s processed, %(count)d items added up to %(date)s' % {'sym' : inst.symbol, 'count' : count, 'date' : start.isoformat ()}
+        if count == 0:
+            print 'There is no new data for symbol %s' % inst.symbol
+        else:
+            inst.last_data = start
+            inst.put ()
+            print 'Symbol %(sym)s processed, %(count)d items added up to %(date)s' % {'sym' : inst.symbol, 'count' : count, 'date' : start.isoformat ()}
         if total >= limit:
             break
 
