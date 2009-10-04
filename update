@@ -4,16 +4,27 @@ from instruments import *
 from quotes import *
 import datetime
 from google.appengine.ext import db
+import cgi
 
 print 'Content-Type: text/plain'
 print ''
-print 'Turned off'
-exit ()
+#print 'Turned off'
+#exit ()
 
-instrs = Instrument.all ().fetch (1000)
-for inst in instrs:
-    inst.description = inst.symbol
-    inst.put ()
-    print '%s processed' % inst.symbol
+form = cgi.FieldStorage ()
 
+count = 0
+if form.has_key ("count"):
+    instrs = Quote.gql ("where period != :1", 'day')
+    for inst in instrs:
+        count = count + 1
+else:
+    instrs = Quote.gql ("where period = :1", 'day')
+    for inst in instrs:
+        inst.period = None
+        inst.put ()
+        count = count + 1
+        if count > 500:
+            break
+print 'Processed %d entries' % count
 print 'OK'
