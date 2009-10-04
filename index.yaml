@@ -3,3 +3,8 @@ indexes:
   properties:
   - name: symbol
   - name: date
+
+- kind: Instrument
+  properties:
+  - name: source
+  - name: symbol
