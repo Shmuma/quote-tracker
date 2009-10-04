@@ -33,15 +33,16 @@ class InstrumentsPage (webapp.RequestHandler):
         # check for arguments
         symbol = self.request.get ("symbol")
         source = self.request.get ("source")
+        description = self.request.get ("description")
 
-        if not symbol or not source:
+        if not symbol or not source or not description:
             self.message ('Required arguments not valid')
             return
         instr = Instrument.by_symbol (symbol)
         if instr != None:
             self.message ('Symbol %s already exists' % symbol)
         else:
-            instr = Instrument (symbol = symbol, source = source)
+            instr = Instrument (symbol = symbol, source = source, description = description)
             instr.put ()
             self.me ()
 
