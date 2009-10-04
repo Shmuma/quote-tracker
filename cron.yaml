@@ -3,6 +3,6 @@ cron:
   url: /fetch-quotes
   schedule: every 10 minutes
 
-- description: wiper period
-  url: /update
-  schedule: every 1 minutes
+#- description: wiper period
+#  url: /update
+#  schedule: every 1 minutes
