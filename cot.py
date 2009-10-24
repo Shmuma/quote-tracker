@@ -49,7 +49,18 @@ class COT_Record (db.Model):
     count_non_comm_spread = db.IntegerProperty (required = True)
     count_comm_long = db.IntegerProperty (required = True)
     count_comm_short = db.IntegerProperty (required = True)
-    count_non_rep = db.IntegerProperty (required = True)
+
+    def exists (self):
+        """
+        Returns true if value with such symbol and date is already exists
+        """
+        q = COT_Record.gql ("WHERE symbol = :1 and date = :2", self.symbol, self.date)
+        if len (q.fetch (10)) > 0:
+            return True
+        else:
+            return False
+
+
 
 class COT_Last (db.Model):
     date = db.DateProperty (required = True)
@@ -77,24 +88,40 @@ def last_cot_report_date ():
     return Cacher (COT_Last_Provider (), "last_cot", 60*60).get ()
 
 
+def update_last_cot_report (date):
+    for last in COT_Last.all ().fetch (100):
+        last.delete ()
+    last = COT_Last (date = date)
+    last.put ()
+
 
 def process_last_cot_report ():
     """
     Sub loads and processes latest COT report
     """
-    count = 0
+    skipped = count = 0
     try:
         res = fetch_cftc_file ("/dea/newcot/deacom.txt")
+        date = last_cot_report_date ()
         for row in csv.reader (res.split ('\n'), delimiter=',', quotechar='"'):
             if row == []:
                 continue
             rec = row_to_record (row)
-            rec.put ()
-            count = count + 1
+            if rec != None:
+                # verify that rec is single
+                if rec.exists ():
+                    print rec.symbol, rec.date
+                    skipped = skipped + 1
+                else:
+                    rec.put ()
+                    count = count + 1
+                if date == None or date < rec.date:
+                    date = rec.date
+        update_last_cot_report (date)
     except:
         raise
 
-    return "Processed %d entries" % count
+    return "Processed %d entries, %d skipped" % (count, skipped)
 
 
 
@@ -105,7 +132,10 @@ def row_to_record (row):
     Arguments:
     - `row`: - array of CSV values
     """
-    return COT_Record (symbol = name_to_symbol (row[0]),
+    sym = name_to_symbol (row[0])
+    if sym == None:
+        return None
+    return COT_Record (symbol = sym,
                        date = utils.parseIsoDate (row[2]),
                        oi = long (row[7]),
                        pos_non_comm_long = long (row[8]),
@@ -119,16 +149,20 @@ def row_to_record (row):
                        count_non_comm_short = long (row[79]),
                        count_non_comm_spread = long (row[80]),
                        count_comm_long = long (row[81]),
-                       count_comm_short = long (row[82]),
-                       count_non_rep = long (row[77]) - reduce (lambda x,y: x + long(y), row[78:82], 0))
-
+                       count_comm_short = long (row[82]))
 
 def name_to_symbol (name):
     dict = {
-        'GOLD' : ['GOLD - ']
+        'GOLD'  : ['GOLD - '],
+        'SILVER' : ['SILVER - '],
+        'CHF' : ['SWISS FRANC - '],
+        'EUR' : ['EURO FX - '],
+        'GBP' : ['BRITISH POUND STERLING - '],
+        'JPY' : ['JAPANESE YEN - '],
+        'CAD' : ['CANADIAN DOLLAR - '],
         }
     for key in dict.keys ():
         for v in dict[key]:
             if name.find (v) == 0:
                 return key
-    return 'UNKNOWN ' + name
+    return None
