@@ -8,10 +8,21 @@ print ''
 
 last = COT_Last.all ().fetch (1)
 if len (last) == 0:
-    date = datetime.date (1900, 1, 1)
+    from_date = datetime.date (1900, 1, 1)
 else:
-    date = last[0].date
+    from_date = last[0].date
 
-print 'From date: ', date
+print 'From date: ', from_date
 to_date = last_cot_report_date ()
 print 'To date: ', to_date
+
+if from_date == to_date:
+    print 'Nothing to fetch'
+elif (to_date - from_date).days < 14:
+    print 'Fetch only the last report. Result = ', process_last_cot_report ()
+else:
+    print 'You need to load archive file'
+
+# Temp hack to test last report fetch
+last = COT_Last (date = datetime.date (2009, 10, 13))
+last.put ()

@@ -2,6 +2,7 @@
 
 import datetime
 import httplib
+import utils
 from google.appengine.ext import db
 
 
@@ -28,16 +29,6 @@ def sourceInstance (source):
         return RBCMicexSource ()
     else:
         return None
-
-
-def parseIsoDate (str):
-    """
-    Converts string of format YYYY-MM-DD to datetime object
-    """
-    d = str.split ("-")
-    return datetime.date (int (d[0]), int (d[1]), int (d[2]))
-
-
 
 
 class Source:
@@ -124,7 +115,7 @@ class YahooSource (CsvHttpSource):
         if arr[1] == '' or arr[2] == '' or arr[3] == '' or arr[4] == '':
             return None
         return Quote (symbol = symbol,
-                      date = parseIsoDate (arr[0]),
+                      date = utils.parseIsoDate (arr[0]),
                       open = float (arr[1]),
                       high = float (arr[2]),
                       low  = float (arr[3]),
@@ -159,7 +150,7 @@ class RBCMicexSource (CsvHttpSource):
         if arr[2] == '' or arr[3] == '' or arr[4] == '' or arr[5] == '':
             return None
         return Quote (symbol = symbol,
-                      date = parseIsoDate (arr[1]),
+                      date = utils.parseIsoDate (arr[1]),
                       open = float (arr[2]),
                       close = float (arr[5]),
                       high = float (arr[3]),
