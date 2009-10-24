@@ -179,6 +179,7 @@ def process_cot_year_archive (year):
     input = cStringIO.StringIO (res)
     zf = zipfile.ZipFile (input)
     skipped = count = 0
+    date = last_cot_report_date ()
     for name in zf.namelist ():
         dat = zf.read (name)
         first = True
@@ -195,4 +196,7 @@ def process_cot_year_archive (year):
                 else:
                     rec.put ()
                     count = count + 1
+                if date == None or date < rec.date:
+                    date = rec.date
+        update_last_cot_report (date)
     return "Processed %d entries, %d skipped" % (count, skipped)
