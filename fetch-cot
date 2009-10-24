@@ -1,0 +1,17 @@
+#!/usr/bin/python
+
+from cot import *
+import datetime
+
+print 'Content-Type: text/plain'
+print ''
+
+last = COT_Last.all ().fetch (1)
+if len (last) == 0:
+    date = datetime.date (1900, 1, 1)
+else:
+    date = last[0].date
+
+print 'From date: ', date
+to_date = last_cot_report_date ()
+print 'To date: ', to_date

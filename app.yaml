@@ -16,6 +16,9 @@ handlers:
 - url: /fetch-quotes
   script: fetch-quotes
 
+- url: /fetch-cot
+  script: fetch-cot
+
 - url: /settings
   script: settings-form
 
