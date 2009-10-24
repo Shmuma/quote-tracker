@@ -8,14 +8,16 @@ import sys
 import httplib
 import datetime
 import utils
+import cStringIO
+import zipfile
 from cacher import *
 
 
-def fetch_cftc_file (path):
+def fetch_cftc_file (path, server = "www.cftc.gov"):
     """
     Downloads file from CFTC site
     """
-    conn = httplib.HTTPConnection ("www.cftc.gov")
+    conn = httplib.HTTPConnection (server)
     res = None
     try:
         conn.request ("GET", path)
@@ -166,3 +168,18 @@ def name_to_symbol (name):
             if name.find (v) == 0:
                 return key
     return None
+
+
+def process_cot_year_archive (year):
+    """
+    download and process archive with year's data
+    """
+#    res = fetch_cftc_file ("/files/dea/history/deacot%d.zip" % year)
+    res = fetch_cftc_file ("/1/deacot%d.zip" % year, "localhost")
+    input = cStringIO.StringIO (res)
+    zf = zipfile.ZipFile (input)
+    dat = zf.read ("Annual.TXT")
+    for row in csv.reader (dat.split ('\n'), delimiter=',', quotechar='"'):
+        if row == []:
+            continue
+        print row

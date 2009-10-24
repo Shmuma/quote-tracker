@@ -19,6 +19,9 @@ handlers:
 - url: /fetch-cot
   script: fetch-cot
 
+- url: /fetch-cot-year
+  script: fetch-cot-year
+
 - url: /settings
   script: settings-form
 
