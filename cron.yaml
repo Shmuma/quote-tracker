@@ -3,6 +3,10 @@ cron:
   url: /fetch-quotes
   schedule: every 12 hours
 
+- description: fetch cot reports
+  url: /fetch-cot
+  schedule: every 12 hours
+
 #- description: wiper period
 #  url: /update
 #  schedule: every 1 minutes

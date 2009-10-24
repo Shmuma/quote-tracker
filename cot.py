@@ -175,11 +175,24 @@ def process_cot_year_archive (year):
     download and process archive with year's data
     """
 #    res = fetch_cftc_file ("/files/dea/history/deacot%d.zip" % year)
-    res = fetch_cftc_file ("/1/deacot%d.zip" % year, "localhost")
+    res = fetch_cftc_file ("/cot/deacot%d.zip" % year, "www.shmuma.ru")
     input = cStringIO.StringIO (res)
     zf = zipfile.ZipFile (input)
-    dat = zf.read ("Annual.TXT")
-    for row in csv.reader (dat.split ('\n'), delimiter=',', quotechar='"'):
-        if row == []:
-            continue
-        print row
+    skipped = count = 0
+    for name in zf.namelist ():
+        dat = zf.read (name)
+        first = True
+        for row in csv.reader (dat.split ('\n'), delimiter=',', quotechar='"'):
+            if row == [] or first:
+                first = False
+                continue
+            rec = row_to_record (row)
+            if rec != None:
+                # verify that rec is single
+                if rec.exists ():
+                    print rec.symbol, " ", rec.date
+                    skipped = skipped + 1
+                else:
+                    rec.put ()
+                    count = count + 1
+    return "Processed %d entries, %d skipped" % (count, skipped)
