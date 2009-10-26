@@ -63,9 +63,20 @@ class COT_Record (db.Model):
             return False
 
 
-
 class COT_Last (db.Model):
     date = db.DateProperty (required = True)
+
+
+class COT_Item (db.Model):
+    symbol = db.StringProperty (required = True)
+    last = db.DateProperty (required = True)
+
+    def update (self):
+        items = COT_Item.gql ("WHERE symbol = :1 and last = :2", self.symbol, self.last)
+        for item in items.fetch (100):
+            item.delete ()
+        self.put ()
+
 
 
 class COT_Last_Provider:
@@ -105,6 +116,7 @@ def process_last_cot_report ():
     try:
         res = fetch_cftc_file ("/dea/newcot/deacom.txt")
         date = last_cot_report_date ()
+        items = {}
         for row in csv.reader (res.split ('\n'), delimiter=',', quotechar='"'):
             if row == []:
                 continue
@@ -117,9 +129,14 @@ def process_last_cot_report ():
                 else:
                     rec.put ()
                     count = count + 1
+                if not rec.symbol in items or items[rec.symbol] < rec.date:
+                    items[rec.symbol] = rec.date
                 if date == None or date < rec.date:
                     date = rec.date
         update_last_cot_report (date)
+        # update instruments list
+        for k, v in items.iteritems ():
+            COT_Item (symbol = k, last = v).update ()
     except:
         raise
 

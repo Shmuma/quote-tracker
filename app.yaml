@@ -28,5 +28,11 @@ handlers:
 - url: /quotes/(.+)
   script: get-quotes
 
+- url: /cot-list
+  script: cot-list
+
+- url: /cot/(.+)
+  script: get-cot
+
 - url: /update
   script: update
