@@ -8,3 +8,8 @@ indexes:
   properties:
   - name: source
   - name: symbol
+
+- kind: COT_Record
+  properties:
+  - name: symbol
+  - name: date

@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <title>COT instruments list</title>
+    <link rel="stylesheet" href="/css/style.css" type="text/css" media="screen" />
+  </head>
+  <body>
+    {% if items %}
+    <b>Current instruments</b><br />
+    <table cellspacing="0" cellpadding="6">
+      <tr>
+        <th>№</th>
+        <th>Symbol</th>
+        <th>Last updated</th>
+      </tr>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.index }}</td>
+        <td><a href="/cot/{{ item.symbol }}">{{ item.symbol }}</a></td>
+        <td>{{ item.last }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <b>Instrument list is empty</b><br/>
+    {% endif %}
+  </body>
+</html>

@@ -1,0 +1,30 @@
+#!/usr/bin/python
+
+import os
+from cot import *
+from google.appengine.ext import db
+from google.appengine.ext.webapp import template
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp.util import run_wsgi_app
+
+
+class CotItemsPage (webapp.RequestHandler):
+    def get (self):
+        index = 1
+        q = db.GqlQuery ("select * from COT_Item order by symbol")
+        res = []
+        for item in q:
+            item.index = index
+            res.append (item)
+            index = index + 1
+
+        path = os.path.join (os.path.dirname (__file__), "cot-list.html")
+        self.response.out.write (template.render (path, {'items': res}))
+
+app = webapp.WSGIApplication ([('/cot-list', CotItemsPage)], debug=True)
+
+def main ():
+    run_wsgi_app (app)
+
+if __name__ == "__main__":
+    main ()
