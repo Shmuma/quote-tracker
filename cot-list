@@ -12,14 +12,20 @@ class CotItemsPage (webapp.RequestHandler):
     def get (self):
         index = 1
         q = db.GqlQuery ("select * from COT_Item order by symbol")
-        res = []
-        for item in q:
-            item.index = index
-            res.append (item)
-            index = index + 1
 
-        path = os.path.join (os.path.dirname (__file__), "cot-list.html")
-        self.response.out.write (template.render (path, {'items': res}))
+        if self.request.get ("csv"):
+            self.response.headers['Content-Type'] = 'text/plain'
+            self.response.out.write ("symbol,last\n");
+            for item in q:
+                self.response.out.write ("%s,%s\n" % (item.symbol,item.last.isoformat ()));
+        else:
+            res = []
+            for item in q:
+                item.index = index
+                res.append (item)
+                index = index + 1
+            path = os.path.join (os.path.dirname (__file__), "cot-list.html")
+            self.response.out.write (template.render (path, {'items': res}))
 
 app = webapp.WSGIApplication ([('/cot-list', CotItemsPage)], debug=True)
 

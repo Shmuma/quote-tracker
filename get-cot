@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import utils
 from google.appengine.ext.webapp import template
 from google.appengine.ext import webapp
@@ -22,7 +24,7 @@ class COTDataPage (webapp.RequestHandler):
         else:
             q = db.GqlQuery ("select * from COT_Record where symbol = :1 order by date asc", symbol)
         self.response.out.write ('Date,OpenInterest,PositionNonCommercialLong,PositionNonCommercialShort,PositionNonCommercialSpread,PositionCommercialLong,PositionCommercialShort,PositionNonRepresentativeLong,PositionNonRepresentativeShort,CountNonCommercialLong,CountNonCommercialShort,CountNonCommercialSpread,CountCommercialLong,CountCommercialShort\n')
-        for rec in q:          
+        for rec in q:
             self.response.out.write ('%s,%d.%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n' % 
                                      (rec.date.isoformat (), rec.oi,
                                       rec.pos_non_comm_long, rec.pos_non_comm_short, rec.pos_non_comm_spread, 
