@@ -6,6 +6,7 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.api import memcache
 
 
 class CotItemsPage (webapp.RequestHandler):
@@ -14,10 +15,18 @@ class CotItemsPage (webapp.RequestHandler):
         q = db.GqlQuery ("select * from COT_Item order by symbol")
 
         if self.request.get ("csv"):
+            mc_key = "cot_items_csv"
             self.response.headers['Content-Type'] = 'text/plain'
-            self.response.out.write ("symbol,last\n");
-            for item in q:
-                self.response.out.write ("%s,%s\n" % (item.symbol,item.last.isoformat ()));
+            res = memcache.get (mc_key)
+            if res is not None:
+                self.response.out.write (res)
+            else:
+                res = "symbol,last\n"
+                for item in q:
+                    res += "%s,%s\n" % (item.symbol,item.last.isoformat ());
+                self.response.out.write (res);
+                # cache output for 1 hour
+                memcache.add (mc_key, res, 60*60)
         else:
             res = []
             for item in q:
