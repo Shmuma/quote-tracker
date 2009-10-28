@@ -25,12 +25,12 @@ class COTDataPage (webapp.RequestHandler):
             q = db.GqlQuery ("select * from COT_Record where symbol = :1 order by date asc", symbol)
         self.response.out.write ('Date,OpenInterest,PositionNonCommercialLong,PositionNonCommercialShort,PositionNonCommercialSpread,PositionCommercialLong,PositionCommercialShort,PositionNonRepresentativeLong,PositionNonRepresentativeShort,CountNonCommercialLong,CountNonCommercialShort,CountNonCommercialSpread,CountCommercialLong,CountCommercialShort\n')
         for rec in q:
-            self.response.out.write ('%s,%d.%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n' % 
+            self.response.out.write ('%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n' %
                                      (rec.date.isoformat (), rec.oi,
-                                      rec.pos_non_comm_long, rec.pos_non_comm_short, rec.pos_non_comm_spread, 
-                                      rec.pos_comm_long, rec.pos_comm_short, 
-                                      rec.pos_non_rep_long, rec.pos_non_rep_short, 
-                                      rec.count_non_comm_long, rec.count_non_comm_short, rec.count_non_comm_spread, 
+                                      rec.pos_non_comm_long, rec.pos_non_comm_short, rec.pos_non_comm_spread,
+                                      rec.pos_comm_long, rec.pos_comm_short,
+                                      rec.pos_non_rep_long, rec.pos_non_rep_short,
+                                      rec.count_non_comm_long, rec.count_non_comm_short, rec.count_non_comm_spread,
                                       rec.count_comm_long, rec.count_comm_short))
 
 
