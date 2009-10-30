@@ -72,7 +72,7 @@ class COT_Item (db.Model):
     last = db.DateProperty (required = True)
 
     def update (self):
-        items = COT_Item.gql ("WHERE symbol = :1 and last = :2", self.symbol, self.last)
+        items = COT_Item.gql ("WHERE symbol = :1", self.symbol)
         for item in items.fetch (100):
             item.delete ()
         self.put ()
