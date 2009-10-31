@@ -16,6 +16,9 @@ handlers:
 - url: /fetch-quotes
   script: fetch-quotes
 
+- url: /clean-cot
+  script: clean-cot
+
 - url: /fetch-cot
   script: fetch-cot
 

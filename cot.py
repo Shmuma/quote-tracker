@@ -191,8 +191,8 @@ def process_cot_year_archive (year):
     """
     download and process archive with year's data
     """
-#    res = fetch_cftc_file ("/files/dea/history/deacot%d.zip" % year)
-    res = fetch_cftc_file ("/cot/deacot%d.zip" % year, "www.shmuma.ru")
+#    res = fetch_cftc_file ("/files/dea/history/deahistfo%d.zip" % year)
+    res = fetch_cftc_file ("/cot/deahistfo%d.zip" % year, "www.shmuma.ru")
     input = cStringIO.StringIO (res)
     zf = zipfile.ZipFile (input)
     skipped = count = 0
