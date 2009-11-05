@@ -1,0 +1,10 @@
+#/usr/bin/python
+
+from news import *
+
+print 'Content-Type: text/plain'
+print ''
+
+res = process_week ()
+
+print res

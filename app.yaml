@@ -22,6 +22,9 @@ handlers:
 - url: /fetch-cot
   script: fetch-cot
 
+- url: /fetch-news
+  script: fetch-news
+
 - url: /fetch-cot-year
   script: fetch-cot-year
 
