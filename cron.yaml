@@ -7,6 +7,10 @@ cron:
   url: /fetch-cot
   schedule: every 12 hours
 
+- description: fetch news events
+  url: /fetch-news
+  schedule: every 1 hours
+
 #- description: wiper period
 #  url: /update
 #  schedule: every 1 minutes

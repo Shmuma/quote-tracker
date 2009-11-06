@@ -21,9 +21,14 @@ class News_Record (db.Model):
     # Comma-separated list of currencies that can be affected. None if it will potentially affect all FX market.
     curr = db.StringProperty (required = False)
 
-    def exists (self):
-        q = News_Record.gql ("WHERE id=:1", self.id)
-        return len (q.fetch (10)) > 0
+
+def lookup_news_record (id):
+    q = News_Record.gql ("WHERE id=:1", id)
+    res = q.fetch (10)
+    if len (res) > 0:
+        return res[0]
+    else:
+        return None
 
 
 def get_calendar_data (date):
@@ -39,7 +44,7 @@ def get_calendar_data (date):
     finally:
         conn.close ()
     return res;
-    
+
 
 
 def filter_str (str):
@@ -49,15 +54,41 @@ def filter_str (str):
         return str
 
 
+
 def parse_date_time (date, time):
-    return datetime.datetime.today ()
+    d = date.split ("-")
+    t = time.split (":")
+    return datetime.datetime (int (d[0]), int (d[1]), int (d[2]), int (t[0]), int (t[1])) - datetime.timedelta (hours = 1)
+
+
+
+def country_to_currency (country):
+    h = {"New Zeland" : "NZD",
+         "Astralia" : "AUD",
+         "Japan" : "JPY",
+         "China" : None,
+         "Britain" : "GBP",
+         "USA": "USD",
+         "EU": "EUR",
+         "France" : "EUR",
+         "Germany" : "EUR",
+         "Canada" : "CAD"}
+    if country in h:
+        return h[country]
+    else:
+        return None
+
+
+# Estimate importance score values for object
+def score (obj):
+    return 0
 
 
 
 def fetch_week (date = None):
     if date == None:
         date = datetime.date.today ()
-    
+
     # Download json data from fbs.com
     data = get_calendar_data (date)
     if data == None:
@@ -67,15 +98,15 @@ def fetch_week (date = None):
     rus = {}
     for obj in json.read (data):
         if obj['siteId'] == '2':
-            res.append (News_Record (id = int (obj['id']), when = parse_date_time (obj['date'], obj['time']), 
-                                     score = 0, name = obj['index'].encode ('utf-8'),
-                                     country = obj['country'], 
+            res.append (News_Record (id = int (obj['id']), when = parse_date_time (obj['date'], obj['time']),
+                                     score = 0, name = obj['index'],
+                                     country = obj['country'],
                                      pred = filter_str (obj['pred']),
                                      fore = filter_str (obj['forecast']),
                                      fact = filter_str (obj['fact']),
-                                     curr = None));
+                                     curr = country_to_currency (obj['country'])));
         else:
-            rus[int (obj['id'])] = obj['index'].encode ('utf-8')
+            rus[int (obj['id'])] = obj['index']
         count = count + 1
 
     # update name_ru field of according objects
@@ -86,4 +117,5 @@ def fetch_week (date = None):
         elif (obj.id-1 in rus) and (rus[obj.id-1].find (obj.name) == 0):
             r = rus[obj.id - 1].split (' - ')
             obj.name_ru = r[1]
+        obj.score = score (obj)
     return res

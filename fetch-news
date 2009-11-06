@@ -6,5 +6,19 @@ print 'Content-Type: text/plain'
 print ''
 
 res = fetch_week ()
+skipped = new = updated = 0
 
-print len (res)
+for obj in res:
+    tmp = lookup_news_record (obj.id)
+    if tmp:
+        if not tmp.fact and obj.fact:
+            tmp.fact = obj.fact
+            tmp.save ()
+            updated = updated + 1
+        else:
+            skipped = skipped + 1
+    else:
+        obj.save ()
+        new = new + 1
+print "Total = %d" % len (res)
+print "New = %d, Skipped = %d, Updated = %d" % (new, skipped, updated)
