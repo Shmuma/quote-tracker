@@ -64,7 +64,7 @@ def parse_date_time (date, time):
 
 def country_to_currency (country):
     h = {"New Zeland" : "NZD",
-         "Astralia" : "AUD",
+         "Australia" : "AUD",
          "Japan" : "JPY",
          "China" : None,
          "Britain" : "GBP",

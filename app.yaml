@@ -16,6 +16,12 @@ handlers:
 - url: /fetch-quotes
   script: fetch-quotes
 
+- url: /news
+  script: news-list
+
+- url: /update
+  script: update
+
 - url: /clean-cot
   script: clean-cot
 
@@ -39,6 +45,3 @@ handlers:
 
 - url: /cot/(.+)
   script: get-cot
-
-- url: /update
-  script: update
