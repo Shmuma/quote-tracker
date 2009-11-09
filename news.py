@@ -63,7 +63,7 @@ def parse_date_time (date, time):
 
 
 def country_to_currency (country):
-    h = {"New Zeland" : "NZD",
+    h = {"New Zealand" : "NZD",
          "Australia" : "AUD",
          "Japan" : "JPY",
          "China" : None,
@@ -71,6 +71,7 @@ def country_to_currency (country):
          "USA": "USD",
          "EU": "EUR",
          "France" : "EUR",
+         "Italy" : "EUR",
          "Germany" : "EUR",
          "Canada" : "CAD"}
     if country in h:
