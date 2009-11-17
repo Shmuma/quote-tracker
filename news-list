@@ -19,7 +19,7 @@ def norm_str (str):
 class NewsPage (webapp.RequestHandler):
     def get (self):
         if self.request.get ("csv"):
-            self.response.headers['Content-Type'] = 'text/plain'
+            self.response.headers['Content-Type'] = 'text/plain; charset=utf-8'
             self.response.out.write ("id,date,time,score,name,name_ru,country,prev,fore,fact,curr\n")
             q = db.GqlQuery ("select * from News_Record where when > :1 order by when", datetime.date.today ())
             for ev in q:
