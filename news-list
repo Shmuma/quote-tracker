@@ -15,7 +15,7 @@ def norm_str (str, vis = 0):
     if vis == 0:
         if str == None:
             return "-"
-        return '"%s"' % str.strip ()
+        return str.strip ()
     else:
         if str == None:
             return ""
