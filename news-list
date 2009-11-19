@@ -33,13 +33,13 @@ class NewsPage (webapp.RequestHandler):
             d_to = d_from + datetime.timedelta (days = 7)
         q = db.GqlQuery ("select * from News_Record where when > :1 and when < :2 order by when", d_from, d_to)
         if self.request.get ("csv"):
-            self.response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+            self.response.headers['Content-Type'] = 'text/plain; charset=cp1251'
             self.response.out.write ("id,date,time,score,name,name_ru,country,prev,fore,fact,curr\n")
             for ev in q:
-                self.response.out.write ("%d,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s\n" % (ev.id, ev.when.date ().isoformat (), ev.when.time ().isoformat (),
-                                                                                 ev.score, norm_str (ev.name), norm_str (ev.name_ru), norm_str (ev.country),
-                                                                                 norm_str (ev.pred), norm_str (ev.fore),
-                                                                                 norm_str (ev.fact), norm_str (ev.curr)))
+                self.response.out.write (("%d,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s\n" % (ev.id, ev.when.date ().isoformat (), ev.when.time ().isoformat (),
+                                                                                  ev.score, norm_str (ev.name), norm_str (ev.name_ru), norm_str (ev.country),
+                                                                                  norm_str (ev.pred), norm_str (ev.fore),
+                                                                                  norm_str (ev.fact), norm_str (ev.curr))).encode ("cp1251"))
         else:
             res = []
             index = 1
