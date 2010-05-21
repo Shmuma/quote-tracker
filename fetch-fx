@@ -1,0 +1,26 @@
+#!/usr/bin/python
+
+# connect to fxclub quote server and ask about latest H1 and D1 bars
+# compare with memcached information and fetch predefined URL if new bar found
+
+import socket
+
+def send (s, msg):
+    t = s.send (msg)
+    print "Sent %d bytes" % t
+    d = s.recv (4096)
+    print d
+
+s = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
+s.connect (("hist-prim.fxclub.org", 2022))
+
+s.recv (4096)
+send (s, "USER tunnel 123\r\n")
+send (s, "HIST\r\nEUR A H 00:00:00 20/05/2010 00:00:00 21/05/2010\r\n.\r\n")
+# "HIST\nEUR A H1 00:00:00 20/05/2010 00:00:00 21/05/2010\n.\n\n"
+#data = s.recv (4096)
+#print data
+d = s.recv (4096)
+print d
+
+s.close ()

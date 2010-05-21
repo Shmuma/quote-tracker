@@ -45,3 +45,6 @@ handlers:
 
 - url: /cot/(.+)
   script: get-cot
+
+- url: /fetch-fx
+  script: fetch-fx
