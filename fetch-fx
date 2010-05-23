@@ -1,26 +1,98 @@
 #!/usr/bin/python
 
-# connect to fxclub quote server and ask about latest H1 and D1 bars
-# compare with memcached information and fetch predefined URL if new bar found
+import httplib
+import json
+import time
 
-import socket
+debug = 0
 
-def send (s, msg):
-    t = s.send (msg)
-    print "Sent %d bytes" % t
-    d = s.recv (4096)
-    print d
+if not debug:
+    from google.appengine.api import memcache
+    from google.appengine.api import mail
 
-s = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
-s.connect (("hist-prim.fxclub.org", 2022))
+# handler of new bar
+def new_bar (period, pair1, pair2, ts, o, h, l, c):
+    v = 'New %s bar on %s/%s: @%s O=>%f, H=>%f, L=>%f, C=>%f' % (period, pair1, pair2, ts, o, h, l, c)
+    mail.send_mail (sender = "fetch-fx@quote-tracker.appspot.com",
+                    to = "Max Lapan<max.lapan@gmail.com>",
+                    subject = "New bar in %s/%s, %s" % (pair1, pair2, period),
+                    body = v)
+    print v
 
-s.recv (4096)
-send (s, "USER tunnel 123\r\n")
-send (s, "HIST\r\nEUR A H 00:00:00 20/05/2010 00:00:00 21/05/2010\r\n.\r\n")
-# "HIST\nEUR A H1 00:00:00 20/05/2010 00:00:00 21/05/2010\n.\n\n"
-#data = s.recv (4096)
-#print data
-d = s.recv (4096)
-print d
 
-s.close ()
+# Available pairs:
+# Primary: EUR/USD, AUD/USD, USD/CAD, USD/JPY, GBP/USD, USD/CHF, NZD/USD, USD/UKD, USD/SGD, USD/ZAR, USD/MXN
+# Crosses: EUR/CHF, EUR/GBP, EUR/JPY, GBP/JPY, EUR/CAD, EUR/AUD, GBP/CHF, CHF/JPY, AUD/CAD, AUD/JPY, CAD/JPY, GBP/AUD, AUD/NZD, ZAR/JPY, 
+
+pairs = [('EUR', 'USD')]
+
+# Available periods table:
+# M1 = 0
+# M5 = 1
+# M10 = 2
+# M15 = 3
+# M30 = 4
+# H1 = 5
+# H2 = 6
+# H4 = 7
+# D1 = 8
+# W1 = 9
+# M1 = 10
+
+#periods = {'H1': 5, 'D1': 8}
+periods = {
+    'H1': {'arg': 5, 'interval': 3600},
+    'D1': {'arg': 8, 'interval': 86400},
+    }
+
+server = "webcharts.fxserver.com"
+req = "/charts/activeChartFeed.php?pair=%(pair1)s/%(pair2)s&period=%(period)d&unit=&limit=2&timeout=0&rateType=bid&GMT=on"
+
+conn = httplib.HTTPConnection (server)
+
+print 'Content-type: text/plain'
+print
+
+print 'Progress'
+
+for pair in pairs:
+    pair1, pair2 = pair
+    for per_name, per_data in periods.iteritems ():
+        # memcache key of last timestamp
+        key = "%s-%s-%s" % (pair1, pair2, per_name)
+        print 'Check: %s-%s, %s' % (pair1, pair2, per_name)
+
+        per_arg = per_data['arg']
+        per_int = per_data['interval']
+
+        # obtain timestamp of last bar
+        if not debug:
+            ts = memcache.get (key)
+        if ts == None:
+            print 'TS not found in memcache'
+            ts = 0
+        else:
+            print 'We have memcached ts: %d' % ts
+        if time.time () - ts < per_int:
+            print '%s-%s, %s skipped' % (pair1, pair2, per_name)
+            continue
+
+        # perform server's request
+        try:
+            do_req = req % { 'pair1': pair1, 'pair2': pair2, 'period': per_arg }
+            conn.request ("GET", do_req)
+            r = conn.getresponse ()
+            if r.status == 200:
+                data = json.read (r.read ())['candles']
+                print 'We got from srv: ', data
+                if data['time'][0] > ts:
+                    # new bar, process it
+                    new_bar (per_name, pair1, pair2, data['time'][0], float (data['data'][0]['O']), float (data['data'][0]['H']),
+                             float (data['data'][0]['L']), float (data['data'][0]['C']))
+                else:
+                    print 'We processed this bar already'
+                # save timestamp
+                if not debug:
+                    memcache.set (key, data['time'][0])
+        except:
+            print 'Download error, skip it'

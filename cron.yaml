@@ -14,3 +14,7 @@ cron:
 #- description: wiper period
 #  url: /update
 #  schedule: every 1 minutes
+
+- description: fetch forex quotes
+  url: /fetch-fx
+  schedule: every 1 minutes
