@@ -13,10 +13,13 @@ if not debug:
     from google.appengine.api import mail
     from google.appengine.api import xmpp
 
+def xmpp_msg (msg):
+    xmpp.send_message ("lapan_mv@jabber.ru", msg, None, xmpp.MESSAGE_TYPE_NORMAL)
+
 # handler of new bar (send message to jabber)
 def new_bar_message (period, pair1, pair2, ts, o, h, l, c):
     v = 'New %s bar on %s/%s: @%s O=>%f, H=>%f, L=>%f, C=>%f' % (period, pair1, pair2, ts_to_string (ts), o, h, l, c)
-    xmpp.send_message ("lapan_mv@jabber.ru", v, None, xmpp.MESSAGE_TYPE_NORMAL)
+    xmpp_msg (v)
     print v
 
 # fetch url of fx-experts application
@@ -24,13 +27,15 @@ def new_bar (period, pair1, pair2, ts, o, h, l, c):
     try:
         srv = "fx-experts.appspot.com"
         req = "/new_bar?pair1=%s&pair2=%s&period=%s&ts=%d&o=%f&h=%f&l=%f&c=%f" % (pair1, pair2, period, ts, o, h, l, c)
+        xmpp.send_message ("lapan_mv@jabber.ru", "About to request http://%s%s" % (srv, req), None, xmpp.MESSAGE_TYPE_NORMAL)
         conn = httplib.HTTPConnection ()
         print "Request: http://%s%s" % (srv, req)
         conn.request ("GET", do_req)
         r = conn.getresponse ()
-        r.read ()
+        reply = r.read ()
+        xmpp_msg ("Result %s" % reply)
     except:
-        pass
+        xmpp_msg ("Error: " + sys.exc_info ())
 
 def ts_to_string (ts):
     return "%s (%s UTC)" % (ts, datetime.datetime.utcfromtimestamp (ts).__str__ ())
@@ -114,4 +119,5 @@ for pair in pairs:
                 if not debug:
                     memcache.set (key, ts1)
         except:
+            xmpp_msg ("Global error: " + sys.exc_info ())
             print 'Download error, skip it:', sys.exc_info ()
