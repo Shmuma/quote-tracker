@@ -48,3 +48,6 @@ handlers:
 
 - url: /fetch-fx
   script: fetch-fx
+
+- url: /reset-fx
+  script: reset-fx

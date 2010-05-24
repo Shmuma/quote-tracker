@@ -24,18 +24,13 @@ def new_bar_message (period, pair1, pair2, ts, o, h, l, c):
 
 # fetch url of fx-experts application
 def new_bar (period, pair1, pair2, ts, o, h, l, c):
-    try:
-        srv = "fx-experts.appspot.com"
-        req = "/new_bar?pair1=%s&pair2=%s&period=%s&ts=%d&o=%f&h=%f&l=%f&c=%f" % (pair1, pair2, period, ts, o, h, l, c)
-        xmpp.send_message ("lapan_mv@jabber.ru", "About to request http://%s%s" % (srv, req), None, xmpp.MESSAGE_TYPE_NORMAL)
-        conn = httplib.HTTPConnection ()
-        print "Request: http://%s%s" % (srv, req)
-        conn.request ("GET", do_req)
-        r = conn.getresponse ()
-        reply = r.read ()
-        xmpp_msg ("Result %s" % reply)
-    except:
-        xmpp_msg ("Error: " + sys.exc_info ())
+    srv = "fx-experts.appspot.com"
+    req = "/new_bar?pair1=%s&pair2=%s&period=%s&ts=%d&o=%f&h=%f&l=%f&c=%f" % (pair1, pair2, period, ts, o, h, l, c)
+    conn = httplib.HTTPConnection (srv)
+    print "Request: http://%s%s" % (srv, req)
+    conn.request ("GET", do_req)
+    r = conn.getresponse ()
+    reply = r.read ()
 
 def ts_to_string (ts):
     return "%s (%s UTC)" % (ts, datetime.datetime.utcfromtimestamp (ts).__str__ ())
@@ -119,5 +114,5 @@ for pair in pairs:
                 if not debug:
                     memcache.set (key, ts1)
         except:
-            xmpp_msg ("Global error: " + sys.exc_info ())
+            xmpp_msg ("Global error: %s" % sys.exc_info ()[1])
             print 'Download error, skip it:', sys.exc_info ()
