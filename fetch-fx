@@ -25,7 +25,7 @@ def new_bar (period, pair1, pair2, ts, o, h, l, c):
 
 
 def ts_to_string (ts):
-    return "%s (%s UTC)" % (ts, datetime.datetime.utcfromtimestamp (ts).isoformat (' '))
+    return "%s (%s UTC)" % (ts, datetime.datetime.utcfromtimestamp (ts).__str__ ())
 
 # Available pairs:
 # Primary: EUR/USD, AUD/USD, USD/CAD, USD/JPY, GBP/USD, USD/CHF, NZD/USD, USD/UKD, USD/SGD, USD/ZAR, USD/MXN
@@ -53,7 +53,7 @@ periods = {
     }
 
 server = "webcharts.fxserver.com"
-req = "/charts/activeChartFeed.php?pair=%(pair1)s/%(pair2)s&period=%(period)d&unit=&limit=2&timeout=0&rateType=bid&GMT=on"
+req = "/charts/activeChartFeed.php?pair=%(pair1)s/%(pair2)s&period=%(period)d&unit=&limit=3&timeout=0&rateType=bid&GMT=off"
 
 conn = httplib.HTTPConnection (server)
 
@@ -94,14 +94,17 @@ for pair in pairs:
             if r.status == 200:
                 data = json.read (r.read ())['candles']
                 print 'We got from srv: ', data
-                if data['time'][0] > ts:
+                # last complete bar value
+                ts1 = data['time'][1]
+                print 'Last complete bar: %s' % ts_to_string (ts1)
+                if ts1 > ts:
                     # new bar, process it
-                    new_bar (per_name, pair1, pair2, data['time'][0], float (data['data'][0]['O']), float (data['data'][0]['H']),
-                             float (data['data'][0]['L']), float (data['data'][0]['C']))
+                    new_bar (per_name, pair1, pair2, ts1, float (data['data'][1]['O']), float (data['data'][1]['H']),
+                             float (data['data'][1]['L']), float (data['data'][1]['C']))
                 else:
                     print 'We processed this bar already'
                 # save timestamp
                 if not debug:
-                    memcache.set (key, data['time'][0])
+                    memcache.set (key, ts1)
         except:
             print 'Download error, skip it:', sys.exc_info ()
