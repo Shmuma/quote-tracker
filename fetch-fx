@@ -68,6 +68,7 @@ conn = httplib.HTTPConnection (server)
 print 'Content-type: text/plain'
 print
 
+new_bars = []
 
 for pair in pairs:
     pair1, pair2 = pair
@@ -105,9 +106,9 @@ for pair in pairs:
                 ts1 = data['time'][1]
                 print 'Last complete bar: %s' % ts_to_string (ts1)
                 if ts1 > ts:
-                    # new bar, process it
-                    new_bar (per_name, pair1, pair2, ts1, float (data['data'][1]['O']), float (data['data'][1]['H']),
-                             float (data['data'][1]['L']), float (data['data'][1]['C']))
+                    # queue new bars for processing
+                    new_bars += [(per_name, pair1, pair2, ts1, float (data['data'][1]['O']), float (data['data'][1]['H']),
+                                  float (data['data'][1]['L']), float (data['data'][1]['C']))]
                 else:
                     print 'We processed this bar already'
                 # save timestamp
@@ -116,3 +117,7 @@ for pair in pairs:
         except:
             xmpp_msg ("Global error: %s" % sys.exc_info ()[1])
             print 'Download error, skip it:', sys.exc_info ()
+
+for bar in new_bars:
+    # new bar, process it
+    new_bar (bar[0], bar[1], bar[2], bar[3], bar[4], bars[5], bars[6], bars[7])
