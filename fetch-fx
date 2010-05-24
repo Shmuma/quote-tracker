@@ -13,16 +13,24 @@ if not debug:
     from google.appengine.api import mail
     from google.appengine.api import xmpp
 
-# handler of new bar
-def new_bar (period, pair1, pair2, ts, o, h, l, c):
+# handler of new bar (send message to jabber)
+def new_bar_message (period, pair1, pair2, ts, o, h, l, c):
     v = 'New %s bar on %s/%s: @%s O=>%f, H=>%f, L=>%f, C=>%f' % (period, pair1, pair2, ts_to_string (ts), o, h, l, c)
-    mail.send_mail (sender = "max.lapan@gmail.com",
-                    to = "max.lapan@gmail.com",
-                    subject = "New bar in %s/%s, %s" % (pair1, pair2, period),
-                    body = v)
     xmpp.send_message ("lapan_mv@jabber.ru", v, None, xmpp.MESSAGE_TYPE_NORMAL)
     print v
 
+# fetch url of fx-experts application
+def new_bar (period, pair1, pair2, ts, o, h, l, c):
+    try:
+        srv = "fx-experts.appspot.com"
+        req = "/new_bar?pair1=%s&pair2=%s&period=%s&ts=%d&o=%f&h=%f&l=%f&c=%f" % (pair1, pair2, period, ts, o, h, l, c)
+        conn = httplib.HTTPConnection ()
+        print "Request: http://%s%s" % (srv, req)
+        conn.request ("GET", do_req)
+        r = conn.getresponse ()
+        r.read ()
+    except:
+        pass
 
 def ts_to_string (ts):
     return "%s (%s UTC)" % (ts, datetime.datetime.utcfromtimestamp (ts).__str__ ())
@@ -60,7 +68,6 @@ conn = httplib.HTTPConnection (server)
 print 'Content-type: text/plain'
 print
 
-print 'Progress'
 
 for pair in pairs:
     pair1, pair2 = pair
