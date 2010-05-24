@@ -2,6 +2,7 @@
 
 import httplib
 import json
+import datetime
 import time
 import sys
 
@@ -10,16 +11,21 @@ debug = 0
 if not debug:
     from google.appengine.api import memcache
     from google.appengine.api import mail
+    from google.appengine.api import xmpp
 
 # handler of new bar
 def new_bar (period, pair1, pair2, ts, o, h, l, c):
-    v = 'New %s bar on %s/%s: @%s O=>%f, H=>%f, L=>%f, C=>%f' % (period, pair1, pair2, ts, o, h, l, c)
+    v = 'New %s bar on %s/%s: @%s O=>%f, H=>%f, L=>%f, C=>%f' % (period, pair1, pair2, ts_to_string (ts), o, h, l, c)
     mail.send_mail (sender = "max.lapan@gmail.com",
                     to = "max.lapan@gmail.com",
                     subject = "New bar in %s/%s, %s" % (pair1, pair2, period),
                     body = v)
+    xmpp.send_message ("lapan_mv@jabber.ru", v, None, xmpp.MESSAGE_TYPE_NORMAL)
     print v
 
+
+def ts_to_string (ts):
+    return "%s (%s UTC)" % (ts, datetime.datetime.utcfromtimestamp (ts).isoformat (' '))
 
 # Available pairs:
 # Primary: EUR/USD, AUD/USD, USD/CAD, USD/JPY, GBP/USD, USD/CHF, NZD/USD, USD/UKD, USD/SGD, USD/ZAR, USD/MXN
@@ -66,6 +72,8 @@ for pair in pairs:
         per_arg = per_data['arg']
         per_int = per_data['interval']
 
+        print 'Current TS: %s' % ts_to_string (time.time ())
+
         # obtain timestamp of last bar
         if not debug:
             ts = memcache.get (key)
@@ -73,7 +81,7 @@ for pair in pairs:
             print 'TS not found in memcache'
             ts = 0
         else:
-            print 'We have memcached ts: %d' % ts
+            print 'We have memcached ts: %s' % ts_to_string (ts)
         if time.time () - ts < per_int:
             print '%s-%s, %s skipped' % (pair1, pair2, per_name)
             continue
