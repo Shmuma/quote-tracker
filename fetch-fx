@@ -3,6 +3,7 @@
 import httplib
 import json
 import time
+import sys
 
 debug = 0
 
@@ -13,8 +14,8 @@ if not debug:
 # handler of new bar
 def new_bar (period, pair1, pair2, ts, o, h, l, c):
     v = 'New %s bar on %s/%s: @%s O=>%f, H=>%f, L=>%f, C=>%f' % (period, pair1, pair2, ts, o, h, l, c)
-    mail.send_mail (sender = "fetch-fx@quote-tracker.appspot.com",
-                    to = "Max Lapan<max.lapan@gmail.com>",
+    mail.send_mail (sender = "max.lapan@gmail.com",
+                    to = "max.lapan@gmail.com",
                     subject = "New bar in %s/%s, %s" % (pair1, pair2, period),
                     body = v)
     print v
@@ -95,4 +96,4 @@ for pair in pairs:
                 if not debug:
                     memcache.set (key, data['time'][0])
         except:
-            print 'Download error, skip it'
+            print 'Download error, skip it:', sys.exc_info ()
