@@ -11,16 +11,6 @@ debug = 0
 if not debug:
     from google.appengine.api import memcache
     from google.appengine.api import mail
-    from google.appengine.api import xmpp
-
-def xmpp_msg (msg):
-    xmpp.send_message ("lapan_mv@jabber.ru", msg, None, xmpp.MESSAGE_TYPE_NORMAL)
-
-# handler of new bar (send message to jabber)
-def new_bar_message (period, pair1, pair2, ts, o, h, l, c):
-    v = 'New %s bar on %s/%s: @%s O=>%f, H=>%f, L=>%f, C=>%f' % (period, pair1, pair2, ts_to_string (ts), o, h, l, c)
-    xmpp_msg (v)
-    print v
 
 # fetch url of fx-experts application
 def new_bar (period, pair1, pair2, ts, o, h, l, c):
@@ -40,7 +30,7 @@ def ts_to_string (ts):
 # Primary: EUR/USD, AUD/USD, USD/CAD, USD/JPY, GBP/USD, USD/CHF, NZD/USD, USD/UKD, USD/SGD, USD/ZAR, USD/MXN
 # Crosses: EUR/CHF, EUR/GBP, EUR/JPY, GBP/JPY, EUR/CAD, EUR/AUD, GBP/CHF, CHF/JPY, AUD/CAD, AUD/JPY, CAD/JPY, GBP/AUD, AUD/NZD, ZAR/JPY, 
 
-pairs = [('EUR', 'USD')]
+pairs = [('EUR', 'USD'), ('AUD', 'USD'), ('USD', 'CAD'), ('USD', 'JPY'), ('GBP', 'USD'), ('USD', 'CHF')]
 
 # Available periods table:
 # M1 = 0
@@ -114,6 +104,5 @@ for pair in pairs:
                 if not debug:
                     memcache.set (key, ts1)
         except:
-            xmpp_msg ("Global error: %s" % sys.exc_info ()[1])
             print 'Download error, skip it:', sys.exc_info ()
 conn.close ()
