@@ -36,7 +36,7 @@ def get_calendar_data (date):
     conn = httplib.HTTPConnection ("fbs.com")
     try:
         # Warning: fbs has a bug. When we request UTC time, it returns Moscow time. So, we request UTC+1, and remove 1 hour to get UTC.
-        req = "/ru/analytics/economic_calendar?action=calendar&day=%d&month=%d&year=%d&country=-1&timezone=1&lang=1&week=1" % (
+        req = "/ru/analytics/economic_calendar?action=calendar&day=%d&month=%d&year=%d&country=-1&timezone=1&lang=2&week=1" % (
             date.day, date.month, date.year)
         conn.request ("GET", req)
         r = conn.getresponse ()
@@ -96,27 +96,13 @@ def fetch_week (date = None):
         return []
     count = 0
     res = []
-    rus = {}
     for obj in json.read (data):
-        if obj['siteId'] == '2':
-            res.append (News_Record (id = int (obj['id']), when = parse_date_time (obj['date'], obj['time']),
-                                     score = 0, name = obj['index'],
-                                     country = obj['country'],
-                                     pred = filter_str (obj['pred']),
-                                     fore = filter_str (obj['forecast']),
-                                     fact = filter_str (obj['fact']),
-                                     curr = country_to_currency (obj['country'])));
-        else:
-            rus[int (obj['id'])] = obj['index']
+        res.append (News_Record (id = int (obj['id']), when = parse_date_time (obj['date'], obj['time']),
+                                 score = 0, name = obj['index'],
+                                 country = obj['country'],
+                                 pred = filter_str (obj['pred']),
+                                 fore = filter_str (obj['forecast']),
+                                 fact = filter_str (obj['fact']),
+                                 curr = country_to_currency (obj['country'])));
         count = count + 1
-
-    # update name_ru field of according objects
-    for obj in res:
-        if (obj.id+1 in rus) and (rus[obj.id+1].find (obj.name) == 0):
-            r = rus[obj.id + 1].split (' - ')
-            obj.name_ru = r[1]
-        elif (obj.id-1 in rus) and (rus[obj.id-1].find (obj.name) == 0):
-            r = rus[obj.id - 1].split (' - ')
-            obj.name_ru = r[1]
-        obj.score = score (obj)
     return res
