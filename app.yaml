@@ -19,6 +19,9 @@ handlers:
 - url: /news
   script: news-list
 
+- url: /news.ical
+  script: news_calendar
+
 - url: /update
   script: update
 
