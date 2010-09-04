@@ -1,0 +1,60 @@
+#!/usr/bin/python
+
+print 'Content-Type: text/calendar; charset=UTF-8'
+print 'Cache-Control: no-cache, must-revalidate'
+print 'Expires: Sat, 26 Jul 1997 05:00:00 GMT'
+print ''
+
+from icalendar import Calendar, Event, UTC
+from datetime import datetime
+
+cal = Calendar ()
+
+cal.add ('prodid', "-//Shmuma//FX News 0.1//EN")
+cal.add ('version', "2.0")
+cal.add ('x-wr-timezone', "UTC")
+cal.add ('x-wr-calname', "Forex News")
+cal.add ('x-wr-caldesc', "Upcoming financial news")
+
+# Refresh every 10 minutes
+cal.add ('x-published-ttl', "P1M")
+
+event = Event ()
+event.add ('summary', "Test event")
+event.add('dtstamp', datetime(2010,9,4,9,30,0,tzinfo=UTC))
+event.add('dtstart', datetime(2010,9,4,9,30,0,tzinfo=UTC))
+event.add('dtend', datetime(2010,9,4,9,35,0,tzinfo=UTC))
+event['uid'] = '20100904093000/T1@shmuma.ru'
+event.add('priority', 5)
+cal.add_component (event)
+
+event = Event ()
+event.add ('summary', "Upcoming event")
+event.add('dtstamp', datetime(2010,9,4,8,30,0,tzinfo=UTC))
+event.add('dtstart', datetime(2010,9,4,8,30,0,tzinfo=UTC))
+event.add('dtend', datetime(2010,9,4,8,35,0,tzinfo=UTC))
+event['uid'] = '20100904083000/UE@shmuma.ru'
+event.add('priority', 1)
+cal.add_component (event)
+
+event = Event ()
+event.add ('summary', "Test event2")
+event.add('dtstamp', datetime(2010,9,5,10,30,0,tzinfo=UTC))
+event.add('dtstart', datetime(2010,9,5,10,30,0,tzinfo=UTC))
+event.add('dtend',   datetime(2010,9,5,10,35,0,tzinfo=UTC))
+event['uid'] = '20100905103000/T2@shmuma.ru'
+event.add('priority', 5)
+cal.add_component (event)
+
+#event = Event ()
+#event.add ('summary', "Building index")
+#event.add('dtstamp', datetime(2010,9,2,9,30,0,tzinfo=UTC))
+#event.add('priority', 5)
+
+#event = Event ()
+#event.add ('summary', "Building index")
+#event.add('dtstamp', datetime(2010,9,2,9,30,0,tzinfo=UTC))
+#event.add('priority', 5)
+
+
+print cal.as_string ()
