@@ -46,6 +46,17 @@ event['uid'] = '20100905103000/T2@shmuma.ru'
 event.add('priority', 5)
 cal.add_component (event)
 
+event = Event ()
+event.add ('summary', "Notify test")
+event.add('dtstamp', datetime(2010,9,5,6,0,0,tzinfo=UTC))
+event.add('dtstart', datetime(2010,9,5,6,0,0,tzinfo=UTC))
+event.add('dtend',   datetime(2010,9,5,6,5,0,tzinfo=UTC))
+event.add ('description', "This is a simple test of notification about newly added event")
+event['uid'] = '20100905060000/NT@shmuma.ru'
+event.add('priority', 1)
+cal.add_component (event)
+
+
 #event = Event ()
 #event.add ('summary', "Building index")
 #event.add('dtstamp', datetime(2010,9,2,9,30,0,tzinfo=UTC))
