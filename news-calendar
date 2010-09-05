@@ -51,8 +51,8 @@ for ev in q:
         continue
     event = Event ()
     event['uid'] = "%d-%d@quote-tracker.appspot.ru" % (ev.id, time.mktime (ev.when.timetuple ()))
-    event['summary'] = "%s, Prev: %s, Fore: %s, Curr: %s" % (norm_str (ev.name), norm_str (ev.pred),
-                                                             norm_str (ev.fore), norm_str (ev.curr))
+    event['summary'] = "%s, %s" % (norm_str (ev.name), norm_str (ev.curr))
+    event['description'] = "Prev: %s, Fore: %s, Country: %s" % (norm_str (ev.pred), norm_str (ev.fore), norm_str (ev.country))
     event['dtstamp'] = ev.when
 #    event['dtstart'] = ev.when
 #    event['dtend'] = ev.when + datetime.timedelta (minutes = 10)
