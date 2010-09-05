@@ -9,7 +9,11 @@ from icalendar import Calendar, Event, UTC
 import time
 import datetime
 import news
+import cgi
 from google.appengine.ext import db
+
+curr_filter = cgi.FieldStorage ().getlist ('curr')
+curr_filter = map (lambda a: a.upper (), curr_filter)
 
 d_from = datetime.date.today ()
 d_to = d_from + datetime.timedelta (days = 7)
@@ -38,6 +42,8 @@ def norm_str (str, vis = 0):
 q = db.GqlQuery ("select * from News_Record where when > :1 and when < :2 order by when", d_from, d_to)
 
 for ev in q:
+    if curr_filter and ev.curr and not ev.curr.upper () in curr_filter:
+        continue
     event = Event ()
     event['uid'] = "%d-%d@quote-tracker.appspot.ru" % (ev.id, time.mktime (ev.when.timetuple ()))
     event['summary'] = "%s, Prev: %s, Fore: %s, Curr: %s" % (norm_str (ev.name), norm_str (ev.pred),
