@@ -6,67 +6,47 @@ print 'Expires: Sat, 26 Jul 1997 05:00:00 GMT'
 print ''
 
 from icalendar import Calendar, Event, UTC
-from datetime import datetime
+import time
+import datetime
+import news
+from google.appengine.ext import db
+
+d_from = datetime.date.today ()
+d_to = d_from + datetime.timedelta (days = 7)
 
 cal = Calendar ()
-
-#cal.add ('prodid', "-//Shmuma//FX News 0.1//EN")
 cal['prodid'] = "-//Shmuma//FX News 0.1//EN"
 cal['version'] = "2.0"
 cal['x-wr-timezone'] = "UTC"
 cal['x-wr-calname'] = "Forex News"
 cal['x-wr-caldesc'] = "Upcoming financial news"
-
-# Refresh every 10 minutes
-cal['x-published-ttl'] = "P1M"
-
-event = Event ()
-event['summary'] = "Test event"
-event['dtstamp'] = datetime(2010,9,4,9,30,0,tzinfo=UTC)
-event['dtstart'] = datetime(2010,9,4,9,30,0,tzinfo=UTC)
-event['dtend'] = datetime(2010,9,4,9,35,0,tzinfo=UTC)
-event['uid'] = '20100904093000/T1@shmuma.ru'
-event['priority'] = 5
-cal.add_component (event)
-
-event = Event ()
-event['summary'] = "Upcoming event"
-event['dtstamp'] = datetime(2010,9,4,8,30,0,tzinfo=UTC)
-event['dtstart'] = datetime(2010,9,4,8,30,0,tzinfo=UTC)
-event['dtend'] = datetime(2010,9,4,8,35,0,tzinfo=UTC)
-event['uid'] = '20100904083000/UE@shmuma.ru'
-event['priority'] = 1
-cal.add_component (event)
-
-event = Event ()
-event['summary'] = "Test event2"
-event['dtstamp'] = datetime(2010,9,5,10,30,0,tzinfo=UTC)
-event['dtstart'] = datetime(2010,9,5,10,30,0,tzinfo=UTC)
-event['dtend'] =   datetime(2010,9,5,10,35,0,tzinfo=UTC)
-event['uid'] = '20100905103000/T2@shmuma.ru'
-event['priority'] = 5
-cal.add_component (event)
-
-event = Event ()
-event['summary'] = "Notify test"
-event['dtstamp'] = datetime(2010,9,5,6,0,0,tzinfo=UTC)
-event['dtstart'] = datetime(2010,9,5,6,0,0,tzinfo=UTC)
-event['dtend'] =   datetime(2010,9,5,6,5,0,tzinfo=UTC)
-event['description'] = "This is a simple test of notification about newly added event"
-event['uid'] = '20100905060000/NT@shmuma.ru'
-event['priority'] = 1
-cal.add_component (event)
+cal['x-published-ttl'] = "P1H"
 
 
-#event = Event ()
-#event.add ('summary', "Building index")
-#event.add('dtstamp', datetime(2010,9,2,9,30,0,tzinfo=UTC))
-#event.add('priority', 5)
+def norm_str (str, vis = 0):
+    if vis == 0:
+        if str == None:
+            return "-"
+        return str.strip ()
+    else:
+        if str == None:
+            return ""
+        return str.strip ()
 
-#event = Event ()
-#event.add ('summary', "Building index")
-#event.add('dtstamp', datetime(2010,9,2,9,30,0,tzinfo=UTC))
-#event.add('priority', 5)
+
+
+q = db.GqlQuery ("select * from News_Record where when > :1 and when < :2 order by when", d_from, d_to)
+
+for ev in q:
+    event = Event ()
+    event['uid'] = "%d-%d@quote-tracker.appspot.ru" % (ev.id, time.mktime (ev.when.timetuple ()))
+    event['summary'] = "%s, Prev: %s, Fore: %s, Curr: %s" % (norm_str (ev.name), norm_str (ev.pred),
+                                                             norm_str (ev.fore), norm_str (ev.curr))
+    event['dtstamp'] = ev.when
+#    event['dtstart'] = ev.when
+#    event['dtend'] = ev.when + datetime.timedelta (minutes = 10)
+    event['prioeity'] = 0
+    cal.add_component (event)
 
 
 print cal.as_string ()
