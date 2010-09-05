@@ -67,12 +67,14 @@ def country_to_currency (country):
          "Australia" : "AUD",
          "Japan" : "JPY",
          "China" : None,
-         "Britain" : "GBP",
+         "Britain" : "GBP,EUR",
          "USA": "USD",
          "EU": "EUR",
          "France" : "EUR",
          "Italy" : "EUR",
          "Germany" : "EUR",
+         "Eurozone": "EUR",
+         "Swiss": "CHF,EUR",
          "Canada" : "CAD"}
     if country in h:
         return h[country]
