@@ -33,7 +33,7 @@ def lookup_news_record (id):
 
 def get_calendar_data (date):
     res = None
-    conn = httplib.HTTPConnection ("fbs.com")
+    conn = httplib.HTTPConnection ("www.fbs.com")
     try:
         # Warning: fbs has a bug. When we request UTC time, it returns Moscow time. So, we request UTC+1, and remove 1 hour to get UTC.
         req = "/ru/analytics/economic_calendar?action=calendar&day=%d&month=%d&year=%d&country=-1&timezone=1&lang=2&week=1" % (
