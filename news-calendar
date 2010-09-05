@@ -22,8 +22,14 @@ cal = Calendar ()
 cal['prodid'] = "-//Shmuma//FX News 0.1//EN"
 cal['version'] = "2.0"
 cal['x-wr-timezone'] = "UTC"
-cal['x-wr-calname'] = "Forex News"
-cal['x-wr-caldesc'] = "Upcoming financial news"
+
+f_str = ", ".join (curr_filter)
+if curr_filter:
+    cal['x-wr-calname'] = "Forex News (" + f_str + ")"
+    cal['x-wr-caldesc'] = "Upcoming financial news. Filtered by " + f_str + "."
+else:
+    cal['x-wr-calname'] = "Forex News"
+    cal['x-wr-caldesc'] = "Upcoming financial news."
 cal['x-published-ttl'] = "P1H"
 
 
@@ -36,7 +42,6 @@ def norm_str (str, vis = 0):
         if str == None:
             return ""
         return str.strip ()
-
 
 
 q = db.GqlQuery ("select * from News_Record where when > :1 and when < :2 order by when", d_from, d_to)
