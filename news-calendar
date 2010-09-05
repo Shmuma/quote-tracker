@@ -10,50 +10,51 @@ from datetime import datetime
 
 cal = Calendar ()
 
-cal.add ('prodid', "-//Shmuma//FX News 0.1//EN")
-cal.add ('version', "2.0")
-cal.add ('x-wr-timezone', "UTC")
-cal.add ('x-wr-calname', "Forex News")
-cal.add ('x-wr-caldesc', "Upcoming financial news")
+#cal.add ('prodid', "-//Shmuma//FX News 0.1//EN")
+cal['prodid'] = "-//Shmuma//FX News 0.1//EN"
+cal['version'] = "2.0"
+cal['x-wr-timezone'] = "UTC"
+cal['x-wr-calname'] = "Forex News"
+cal['x-wr-caldesc'] = "Upcoming financial news"
 
 # Refresh every 10 minutes
-cal.add ('x-published-ttl', "P1M")
+cal['x-published-ttl'] = "P1M"
 
 event = Event ()
-event.add ('summary', "Test event")
-event.add('dtstamp', datetime(2010,9,4,9,30,0,tzinfo=UTC))
-event.add('dtstart', datetime(2010,9,4,9,30,0,tzinfo=UTC))
-event.add('dtend', datetime(2010,9,4,9,35,0,tzinfo=UTC))
+event['summary'] = "Test event"
+event['dtstamp'] = datetime(2010,9,4,9,30,0,tzinfo=UTC)
+event['dtstart'] = datetime(2010,9,4,9,30,0,tzinfo=UTC)
+event['dtend'] = datetime(2010,9,4,9,35,0,tzinfo=UTC)
 event['uid'] = '20100904093000/T1@shmuma.ru'
-event.add('priority', 5)
+event['priority'] = 5
 cal.add_component (event)
 
 event = Event ()
-event.add ('summary', "Upcoming event")
-event.add('dtstamp', datetime(2010,9,4,8,30,0,tzinfo=UTC))
-event.add('dtstart', datetime(2010,9,4,8,30,0,tzinfo=UTC))
-event.add('dtend', datetime(2010,9,4,8,35,0,tzinfo=UTC))
+event['summary'] = "Upcoming event"
+event['dtstamp'] = datetime(2010,9,4,8,30,0,tzinfo=UTC)
+event['dtstart'] = datetime(2010,9,4,8,30,0,tzinfo=UTC)
+event['dtend'] = datetime(2010,9,4,8,35,0,tzinfo=UTC)
 event['uid'] = '20100904083000/UE@shmuma.ru'
-event.add('priority', 1)
+event['priority'] = 1
 cal.add_component (event)
 
 event = Event ()
-event.add ('summary', "Test event2")
-event.add('dtstamp', datetime(2010,9,5,10,30,0,tzinfo=UTC))
-event.add('dtstart', datetime(2010,9,5,10,30,0,tzinfo=UTC))
-event.add('dtend',   datetime(2010,9,5,10,35,0,tzinfo=UTC))
+event['summary'] = "Test event2"
+event['dtstamp'] = datetime(2010,9,5,10,30,0,tzinfo=UTC)
+event['dtstart'] = datetime(2010,9,5,10,30,0,tzinfo=UTC)
+event['dtend'] =   datetime(2010,9,5,10,35,0,tzinfo=UTC)
 event['uid'] = '20100905103000/T2@shmuma.ru'
-event.add('priority', 5)
+event['priority'] = 5
 cal.add_component (event)
 
 event = Event ()
-event.add ('summary', "Notify test")
-event.add('dtstamp', datetime(2010,9,5,6,0,0,tzinfo=UTC))
-event.add('dtstart', datetime(2010,9,5,6,0,0,tzinfo=UTC))
-event.add('dtend',   datetime(2010,9,5,6,5,0,tzinfo=UTC))
-event.add ('description', "This is a simple test of notification about newly added event")
+event['summary'] = "Notify test"
+event['dtstamp'] = datetime(2010,9,5,6,0,0,tzinfo=UTC)
+event['dtstart'] = datetime(2010,9,5,6,0,0,tzinfo=UTC)
+event['dtend'] =   datetime(2010,9,5,6,5,0,tzinfo=UTC)
+event['description'] = "This is a simple test of notification about newly added event"
 event['uid'] = '20100905060000/NT@shmuma.ru'
-event.add('priority', 1)
+event['priority'] = 1
 cal.add_component (event)
 
 
