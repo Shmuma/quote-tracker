@@ -54,8 +54,8 @@ for ev in q:
     event['summary'] = "%s, %s" % (norm_str (ev.name), norm_str (ev.curr))
     event['description'] = "Prev: %s, Fore: %s, Country: %s" % (norm_str (ev.pred), norm_str (ev.fore), norm_str (ev.country))
     event['dtstamp'] = ev.when
-#    event['dtstart'] = ev.when
-#    event['dtend'] = ev.when + datetime.timedelta (minutes = 10)
+    event['dtstart'] = ev.when
+    event['dtend'] = ev.when + datetime.timedelta (minutes = 10)
     event['prioeity'] = 0
     cal.add_component (event)
 
