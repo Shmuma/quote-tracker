@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 print 'Content-Type: text/calendar; charset=UTF-8'
 print 'Cache-Control: no-cache, must-revalidate'
@@ -6,6 +7,7 @@ print 'Expires: Sat, 26 Jul 1997 05:00:00 GMT'
 print ''
 
 from icalendar import Calendar, Event, UTC
+from icalendar.prop import vText
 import time
 import datetime
 import news
@@ -19,11 +21,11 @@ d_from = datetime.date.today ()
 d_to = d_from + datetime.timedelta (days = 7)
 
 cal = Calendar ()
-cal['prodid'] = "-//Shmuma//FX News 0.1//EN"
 cal['version'] = "2.0"
+cal['prodid'] = "-//Shmuma//FX News 0.1//EN"
 cal['x-wr-timezone'] = "UTC"
 
-f_str = ", ".join (curr_filter)
+f_str = "\\, ".join (curr_filter)
 if curr_filter:
     cal['x-wr-calname'] = "Forex News (" + f_str + ")"
     cal['x-wr-caldesc'] = "Upcoming financial news. Filtered by " + f_str + "."
@@ -43,21 +45,33 @@ def norm_str (str, vis = 0):
             return ""
         return str.strip ()
 
+# Filter is a list of currencies
+# Curr is a comma-separated list of currenclies.
+def check_filter (filter, curr):
+    if len (filter) == 0:
+        return True
+    if not curr:
+        return True
+    for item in curr.split (","):
+        if item.upper () in filter:
+            return True
+    return False
+
 
 q = db.GqlQuery ("select * from News_Record where when > :1 and when < :2 order by when", d_from, d_to)
 
 for ev in q:
-    if curr_filter and ev.curr and not ev.curr.upper () in curr_filter:
+    if not check_filter (curr_filter, ev.curr):
         continue
     event = Event ()
     event['uid'] = "%d-%d@quote-tracker.appspot.ru" % (ev.id, time.mktime (ev.when.timetuple ()))
-    event['summary'] = "%s, %s" % (norm_str (ev.name), norm_str (ev.curr))
-    event['description'] = "Prev: %s, Fore: %s, Country: %s" % (norm_str (ev.pred), norm_str (ev.fore), norm_str (ev.country))
-    event['dtstamp'] = ev.when
-    event['dtstart'] = ev.when
-    event['dtend'] = ev.when + datetime.timedelta (minutes = 10)
-    event['prioeity'] = 0
+    event['summary'] = vText (u"%s, Affects: %s" % (norm_str (ev.name), norm_str (ev.curr)))
+    event['description'] = "Prev: %s\\, Fore: %s\\, Country: %s" % (norm_str (ev.pred), norm_str (ev.fore), norm_str (ev.country))
+    event['dtstamp'] = ev.when.strftime ("%Y%m%dT%H%M%SZ")
+    event['dtstart'] = ev.when.strftime ("%Y%m%dT%H%M%SZ")
+    event['dtend'] = (ev.when + datetime.timedelta (minutes = 10)).strftime ("%Y%m%dT%H%M%SZ")
+    event['priority'] = 0
     cal.add_component (event)
 
 
-print cal.as_string ()
+print cal.as_string (),
