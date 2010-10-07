@@ -48,6 +48,7 @@ pairs = [('EUR', 'USD'), ('AUD', 'USD'), ('USD', 'CAD'), ('USD', 'JPY'), ('GBP',
 #periods = {'H1': 5, 'D1': 8}
 periods = {
     'H1': {'arg': 5, 'interval': 3600},
+    'H4': {'arg': 7, 'interval': 14400},
     'D1': {'arg': 8, 'interval': 86400},
     }
 
