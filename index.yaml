@@ -13,3 +13,8 @@ indexes:
   properties:
   - name: symbol
   - name: date
+
+- kind: News_Record_v2
+  properties:
+  - name: importance
+  - name: when

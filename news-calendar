@@ -17,6 +17,16 @@ from google.appengine.ext import db
 curr_filter = cgi.FieldStorage ().getlist ('curr')
 curr_filter = map (lambda a: a.upper (), curr_filter)
 
+if cgi.FieldStorage ()['imp']:
+    imp = int (cgi.FieldStorage ()['imp'].value)
+else:
+    imp = 0
+
+if imp < 0:
+    imp = 0
+elif imp > 2:
+    imp = 2
+
 d_from = datetime.date.today ()
 d_to = d_from + datetime.timedelta (days = 7)
 
@@ -26,6 +36,8 @@ cal['prodid'] = "-//Shmuma//FX News 0.1//EN"
 cal['x-wr-timezone'] = "UTC"
 
 f_str = "\\, ".join (curr_filter)
+if imp > 0:
+    f_str += "\\, imp > %d" % imp
 if curr_filter:
     cal['x-wr-calname'] = "Forex News (" + f_str + ")"
     cal['x-wr-caldesc'] = "Upcoming financial news. Filtered by " + f_str + "."
@@ -57,8 +69,13 @@ def check_filter (filter, curr):
             return True
     return False
 
+# generate importance filter string
+imp_list = []
+for i in xrange(imp, 3):
+    imp_list.append ("%d" % i)
+imp_filter = "(" + ",".join (imp_list) + ")"
 
-q = db.GqlQuery ("select * from News_Record_v2 where when > :1 and when < :2 order by when", d_from, d_to)
+q = db.GqlQuery ("select * from News_Record_v2 where when > :1 and when < :2 and importance in %s order by when" % imp_filter, d_from, d_to)
 id = 0
 for ev in q:
     if not check_filter (curr_filter, ev.curr):
