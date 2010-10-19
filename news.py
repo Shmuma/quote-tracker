@@ -3,28 +3,22 @@
 # FX News tracker
 import datetime
 import httplib
-import json
 from google.appengine.ext import db
 
 
-class News_Record (db.Model):
-    id = db.IntegerProperty (required = True)
+class News_Record_v2 (db.Model):
     when = db.DateTimeProperty (required = True)
-    # Importance score 0-100
-    score = db.IntegerProperty (required = True)
-    name = db.StringProperty (required = True)
-    name_ru = db.StringProperty (required = False)
-    country = db.StringProperty (required = False)
+    # Importance 0 = low, 1 = medium, 2 = high
+    importance = db.IntegerProperty (required = True)
+    title = db.StringProperty (required = True)
+    curr = db.StringProperty (required = False)
     pred = db.StringProperty (required = False)
     fore = db.StringProperty (required = False)
-    fact = db.StringProperty (required = False)
-    # Comma-separated list of currencies that can be affected. None if it will potentially affect all FX market.
-    curr = db.StringProperty (required = False)
 
 
-def lookup_news_record (id):
-    q = News_Record.gql ("WHERE id=:1", id)
-    res = q.fetch (10)
+def record_exists (record):
+    q = News_Record_v2.gql ("WHERE when = :1 and title = :2", record.when, record.title)
+    res = q.fetch (1)
     if len (res) > 0:
         return res[0]
     else:
@@ -33,78 +27,59 @@ def lookup_news_record (id):
 
 def get_calendar_data (date):
     res = None
-    conn = httplib.HTTPConnection ("www.fbs.com")
+    # http://www.dailyfx.com/files/Calendar-10-17-2010.csv
+    conn = httplib.HTTPConnection ("www.dailyfx.com")
     try:
-        # Warning: fbs has a bug. When we request UTC time, it returns Moscow time. So, we request UTC+1, and remove 1 hour to get UTC.
-        req = "/ru/analytics/economic_calendar?action=calendar&day=%d&month=%d&year=%d&country=-1&timezone=1&lang=2&week=1" % (
-            date.day, date.month, date.year)
+        req = "/files/Calendar-%02d-%02d-%d.csv" % (date.month, date.day, date.year)
         conn.request ("GET", req)
         r = conn.getresponse ()
-        res = r.read ()
+        res = r.read ().decode ("utf-8")
     finally:
         conn.close ()
     return res;
 
 
-
-def filter_str (str):
-    if str == '-':
-        return None
+def imp2val (imp):
+    imp = imp.lower ()
+    if imp == 'high':
+        return 2
+    elif imp == 'medium':
+        return 1
     else:
-        return str
+        return 0
 
 
-
-def parse_date_time (date, time):
-    d = date.split ("-")
-    t = time.split (":")
-    return datetime.datetime (int (d[0]), int (d[1]), int (d[2]), int (t[0]), int (t[1])) - datetime.timedelta (hours = 1)
-
-
-
-def country_to_currency (country):
-    h = {"New Zealand" : "NZD",
-         "Australia" : "AUD",
-         "Japan" : "JPY",
-         "China" : None,
-         "Britain" : "GBP,EUR",
-         "USA": "USD",
-         "EU": "EUR",
-         "France" : "EUR",
-         "Italy" : "EUR",
-         "Germany" : "EUR",
-         "Eurozone": "EUR",
-         "Swiss": "CHF,EUR",
-         "Canada" : "CAD"}
-    if country in h:
-        return h[country]
+def val2imp (val):
+    if val == 2:
+        return 'high'
+    elif val == 1:
+        return 'medium'
     else:
-        return None
+        return 'low'
 
 
-# Estimate importance score values for object
-def score (obj):
-    return 0
-
-
-
+# if date is not specified, fetch upcoming week
 def fetch_week (date = None):
     if date == None:
         date = datetime.date.today ()
+    # we round date to next sunday
+    while date.weekday () != 6:
+        date += datetime.timedelta (days = 1)
 
-    # Download json data from fbs.com
     data = get_calendar_data (date)
     if data == None:
         return []
-    count = 0
     res = []
-    for obj in json.read (data):
-        res.append (News_Record (id = int (obj['id']), when = parse_date_time (obj['date'], obj['time']),
-                                 score = 0, name = obj['index'],
-                                 country = obj['country'],
-                                 pred = filter_str (obj['pred']),
-                                 fore = filter_str (obj['forecast']),
-                                 fact = filter_str (obj['fact']),
-                                 curr = country_to_currency (obj['country'])));
-        count = count + 1
+    for record in data.split ("\n")[1:]:
+        val = record.split (",")
+        if len (val) < 9:
+            continue
+        d = int (val[0].split (" ")[2])
+        while date.day != d:
+            date += datetime.timedelta (days = 1)
+        when = datetime.datetime (date.year, date.month, date.day)
+        t = val[1].split (":")
+        if len (t) > 1:
+            when = when.replace (hour = int (t[0]), minute = int (t[1]))
+        res.append (News_Record_v2 (when = when, importance = imp2val (val[5]), title = val[4], curr = val[3], pred = val[8], fore = val[7]))
     return res

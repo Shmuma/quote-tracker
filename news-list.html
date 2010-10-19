@@ -11,28 +11,22 @@
         <th>№</th>
         <th>Date</th>
         <th>Time (UTC)</th>
-        <th>Score</th>
+        <th>Importance</th>
         <th>Name</th>
-        <th>Rus Name</th>
-        <th>Country</th>
         <th>Currency</th>
         <th>Previous</th>
         <th>Forecast</th>
-        <th>Fact</th>
       </tr>
       {% for ev in news %}
       <tr>
         <td>{{ ev.index }}</td>
         <td>{{ ev.date }}</td>
         <td>{{ ev.time }}</td>
-        <td>{{ ev.score }}</td>
-        <td>{{ ev.name }}</td>
-        <td>{{ ev.name_ru }}</td>
-        <td>{{ ev.country }}</td>
+        <td>{{ ev.imp }}</td>
+        <td>{{ ev.title }}</td>
         <td>{{ ev.curr }}</td>
         <td>{{ ev.pred }}</td>
         <td>{{ ev.fore }}</td>
-        <td>{{ ev.fact }}</td>
       </tr>
       {% endfor %}
     </table>
