@@ -1,0 +1,23 @@
+#!/usr/bin/python
+
+print 'Content-Type: text/plain'
+print ''
+
+import cgi
+import forex
+
+def get_val (name):
+    if cgi.FieldStorage ()['pair1']:
+        return cgi.FieldStorage ()[name].value
+    else:
+        print 'Error: parameter %s not given' % name
+        exit (0)
+
+fx = forex.FXFetcher ()
+
+data = fx.fetch (get_val ('pair1'), get_val ('pair2'), get_val ('period'), int (get_val ('bars')))
+
+print "timestamp,open,high,low,close"
+
+for ts, bar in zip (data['time'], data['data']):
+    print "%d,%s,%s,%s,%s" % (ts, bar['O'], bar['H'], bar['L'], bar['C'])

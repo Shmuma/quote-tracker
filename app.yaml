@@ -55,6 +55,9 @@ handlers:
 - url: /fetch-fx
   script: fetch-fx
 
+- url: /fx-quotes
+  script: fx-quotes
+
 # dangerous url, should be commented in production
 #- url: /reset-fx
 #  script: reset-fx
