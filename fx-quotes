@@ -5,6 +5,8 @@ print ''
 
 import cgi
 import forex
+import datetime
+
 
 def get_val (name):
     if cgi.FieldStorage ()['pair1']:
@@ -13,11 +15,22 @@ def get_val (name):
         print 'Error: parameter %s not given' % name
         exit (0)
 
+
+def get_date (ts):
+    d = datetime.datetime.fromtimestamp (ts)
+    return "%d.%02d.%02d" % (d.year, d.month, d.day)
+
+
+def get_time (ts):
+    d = datetime.datetime.fromtimestamp (ts) + datetime.timedelta (hours=3)
+    return "%02d:%02d" % (d.hour, d.minute)
+
+
 fx = forex.FXFetcher ()
 
 data = fx.fetch (get_val ('pair1'), get_val ('pair2'), get_val ('period'), int (get_val ('bars')))
 
-print "timestamp,open,high,low,close"
+print "timestamp,date,time,open,high,low,close"
 
 for ts, bar in zip (data['time'], data['data']):
-    print "%d,%s,%s,%s,%s" % (ts, bar['O'], bar['H'], bar['L'], bar['C'])
+    print "%d,%s,%s,%s,%s,%s,%s" % (ts, get_date (ts), get_time (ts), bar['O'], bar['H'], bar['L'], bar['C'])
