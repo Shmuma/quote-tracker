@@ -5,6 +5,7 @@ import json
 import datetime
 import time
 import sys
+import forex
 
 debug = 0
 
@@ -32,37 +33,14 @@ def ts_to_string (ts):
 
 pairs = [('EUR', 'USD'), ('AUD', 'USD'), ('USD', 'CAD'), ('USD', 'JPY'), ('GBP', 'USD'), ('USD', 'CHF')]
 
-# Available periods table:
-# M1 = 0
-# M5 = 1
-# M10 = 2
-# M15 = 3
-# M30 = 4
-# H1 = 5
-# H2 = 6
-# H4 = 7
-# D1 = 8
-# W1 = 9
-# M1 = 10
-
-#periods = {'H1': 5, 'D1': 8}
-periods = {
-    'H1': {'arg': 5, 'interval': 3600},
-    'H4': {'arg': 7, 'interval': 14400},
-    'D1': {'arg': 8, 'interval': 86400},
-    }
-
-server = "webcharts.fxserver.com"
-req = "/charts/activeChartFeed.php?pair=%(pair1)s/%(pair2)s&period=%(period)d&unit=&limit=3&timeout=0&rateType=bid&GMT=off"
-
-conn = httplib.HTTPConnection (server)
+fx = forex.FXFetcher ()
 
 print 'Content-type: text/plain'
 print
 
 for pair in pairs:
     pair1, pair2 = pair
-    for per_name, per_data in periods.iteritems ():
+    for per_name, per_data in forex.FXFetcher.periods.iteritems ():
         # memcache key of last timestamp
         key = "%s-%s-%s" % (pair1, pair2, per_name)
         print 'Check: %s-%s, %s' % (pair1, pair2, per_name)
@@ -75,35 +53,30 @@ for pair in pairs:
         # obtain timestamp of last bar
         if not debug:
             ts = memcache.get (key)
-        if ts == None:
-            print 'TS not found in memcache'
-            ts = 0
-        else:
-            print 'We have memcached ts: %s' % ts_to_string (ts)
-        if time.time () - ts < per_int:
-            print '%s-%s, %s skipped' % (pair1, pair2, per_name)
-            continue
+            if ts == None:
+                print 'TS not found in memcache'
+                ts = 0
+            else:
+                print 'We have memcached ts: %s' % ts_to_string (ts)
+            if time.time () - ts < per_int:
+                print '%s-%s, %s skipped' % (pair1, pair2, per_name)
+                continue
 
         # perform server's request
-        try:
-            do_req = req % { 'pair1': pair1, 'pair2': pair2, 'period': per_arg }
-            conn.request ("GET", do_req)
-            r = conn.getresponse ()
-            if r.status == 200:
-                data = json.read (r.read ())['candles']
-                print 'We got from srv: ', data
-                # last complete bar value
-                ts1 = data['time'][1]
-                print 'Last complete bar: %s' % ts_to_string (ts1)
+        data = fx.fetch (pair1, pair2, per_name, 3)
+        if not data:
+            print 'Download error, skip it:', sys.exc_info ()
+        else:
+            print 'We got from srv: ', data
+            # last complete bar value
+            ts1 = data['time'][1]
+            print 'Last complete bar: %s' % ts_to_string (ts1)
+            if not debug:
                 if ts1 > ts:
                     # queue new bars for processing
                     new_bar (per_name, pair1, pair2, ts1, float (data['data'][1]['O']), float (data['data'][1]['H']),
                              float (data['data'][1]['L']), float (data['data'][1]['C']))
                 else:
                     print 'We processed this bar already'
-                # save timestamp
-                if not debug:
-                    memcache.set (key, ts1)
-        except:
-            print 'Download error, skip it:', sys.exc_info ()
-conn.close ()
+                memcache.set (key, ts1)
+fx.close ()
