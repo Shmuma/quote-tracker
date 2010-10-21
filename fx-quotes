@@ -26,7 +26,7 @@ def format_time (d):
 
 fx = forex.FXFetcher ()
 
-data = fx.fetch (get_val ('pair1'), get_val ('pair2'), get_val ('period'), int (get_val ('bars')))
+data = fx.fetch (get_val ('pair1').upper (), get_val ('pair2').upper (), get_val ('period').upper (), int (get_val ('bars')))
 
 print "timestamp,date,time,open,high,low,close"
 
