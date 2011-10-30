@@ -8,31 +8,31 @@ builtins:
 
 handlers:
 - url: /
-  script: index
+  script: index.py
 
 - url: /css
   static_dir: css
 
 - url: /news
-  script: news-list
+  script: news-list.py
 
 - url: /news.ics
-  script: news-calendar
+  script: news-calendar.py
 
-- url: /clean-cot
-  script: clean-cot
+#- url: /clean-cot
+#  script: clean-cot.py
 
 - url: /fetch-cot
-  script: fetch-cot
+  script: fetch-cot.py
 
 - url: /fetch-news
-  script: fetch-news
+  script: fetch-news.py
 
 - url: /fetch-cot-year
-  script: fetch-cot-year
+  script: fetch-cot-year.py
 
 - url: /cot-list
-  script: cot-list
+  script: cot-list.py
 
 - url: /cot/(.+)
-  script: get-cot
+  script: get-cot.py
