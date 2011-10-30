@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from cot import *
+from tracker import cot
 from google.appengine.ext.webapp import template
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -10,17 +10,17 @@ class CleanPage (webapp.RequestHandler):
         self.response.headers['Content-Type'] = 'text/plain'
         count = 0
 
-        q = COT_Record.all ()
+        q = cot.COT_Record.all ()
         for rec in q.fetch (500):
             rec.delete ()
             count = count + 1
         self.response.out.write ("Wiped %d records\n" % count)
 
-        q = COT_Last.all ()
+        q = cot.COT_Last.all ()
         for last in q.fetch (1000):
             last.delete ()
 
-        q = COT_Item.all ()
+        q = cot.COT_Item.all ()
         for item in q.fetch (1000):
             item.delete ()
 

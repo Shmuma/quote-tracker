@@ -10,9 +10,10 @@ from icalendar import Calendar, Event, UTC
 from icalendar.prop import vText
 import time
 import datetime
-import news
 import cgi
 from google.appengine.ext import db
+
+from tracker import news
 
 curr_filter = cgi.FieldStorage ().getlist ('curr')
 curr_filter = map (lambda a: a.upper (), curr_filter)

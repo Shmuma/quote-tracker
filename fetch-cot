@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from cot import *
+from tracker import  cot
 import datetime
 
 print 'Content-Type: text/html'
@@ -11,14 +11,14 @@ print "<html><body>"
 # Temp hack to test last report fetch
 #update_last_cot_report (datetime.date (2009, 10, 20))
 
-last = COT_Last.all ().fetch (1)
+last = cot.COT_Last.all ().fetch (1)
 if len (last) == 0:
     from_date = datetime.date (1900, 1, 1)
 else:
     from_date = last[0].date
 
 print 'From date: ', from_date, "<br>"
-to_date = COT_Last_Provider ().get ()
+to_date = cot.COT_Last_Provider ().get ()
 print 'To date: ', to_date, "<br>"
 
 if from_date == to_date:

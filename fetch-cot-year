@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from cot import *
+from tracker import cot
 import datetime
 import cgi
 
@@ -17,4 +17,4 @@ if not form.has_key ("year"):
 
 year = int (form["year"].value)
 
-print "Result: ", process_cot_year_archive (year)
+print "Result: ", cot.process_cot_year_archive (year)
