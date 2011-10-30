@@ -1,8 +1,4 @@
 cron:
-- description: fetch quotes
-  url: /fetch-quotes
-  schedule: every 12 hours
-
 - description: fetch cot reports
   url: /fetch-cot
   schedule: every 12 hours
@@ -10,11 +6,3 @@ cron:
 - description: fetch upcoming news events
   url: /fetch-news
   schedule: every saturday 00:00
-
-#- description: wiper period
-#  url: /update
-#  schedule: every 1 minutes
-
-- description: fetch forex quotes
-  url: /fetch-fx
-  schedule: every 1 minutes

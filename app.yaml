@@ -13,20 +13,11 @@ handlers:
 - url: /css
   static_dir: css
 
-- url: /instruments/?(.+)?
-  script: instruments-form
-
-- url: /fetch-quotes
-  script: fetch-quotes
-
 - url: /news
   script: news-list
 
 - url: /news.ics
   script: news-calendar
-
-- url: /update
-  script: update
 
 - url: /clean-cot
   script: clean-cot
@@ -40,24 +31,8 @@ handlers:
 - url: /fetch-cot-year
   script: fetch-cot-year
 
-- url: /settings
-  script: settings-form
-
-- url: /quotes/(.+)
-  script: get-quotes
-
 - url: /cot-list
   script: cot-list
 
 - url: /cot/(.+)
   script: get-cot
-
-- url: /fetch-fx
-  script: fetch-fx
-
-- url: /fx-quotes
-  script: fx-quotes
-
-# dangerous url, should be commented in production
-#- url: /reset-fx
-#  script: reset-fx

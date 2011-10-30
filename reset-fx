@@ -1,9 +1,0 @@
-#!/usr/bin/python
-
-from google.appengine.api import memcache
-
-print "Content-Type: text/plain"
-print
-
-memcache.delete ("EUR-USD-H1")
-print "EUR/USD resetted"
