@@ -57,7 +57,7 @@ class NewsPage (webapp.RequestHandler):
                 ev.curr =  norm_str (ev.curr, 1)
                 index = index + 1
                 res.append (ev)
-            path = os.path.join (os.path.dirname (__file__), "news-list.html")
+            path = os.path.join (os.path.dirname (__file__), "tmpl/news-list.html")
 
             ub_day = (d_from - datetime.timedelta (days = 7)).isoformat ()
             lb_day = (d_from - datetime.timedelta (days = 1)).isoformat ()           

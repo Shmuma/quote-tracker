@@ -33,7 +33,7 @@ class CotItemsPage (webapp.RequestHandler):
                 item.index = index
                 res.append (item)
                 index = index + 1
-            path = os.path.join (os.path.dirname (__file__), "cot-list.html")
+            path = os.path.join (os.path.dirname (__file__), "tmpl/cot-list.html")
             self.response.out.write (template.render (path, {'items': res}))
 
 app = webapp.WSGIApplication ([('/cot-list', CotItemsPage)], debug=True)

@@ -10,7 +10,7 @@ from google.appengine.ext import db
 class MainPage (webapp.RequestHandler):
     def get (self):
         args = {}
-        path = os.path.join (os.path.dirname (__file__), "index.html")
+        path = os.path.join (os.path.dirname (__file__), "tmpl/index.html")
         self.response.out.write (template.render (path, args))
 
 
