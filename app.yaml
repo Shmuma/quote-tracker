@@ -40,3 +40,7 @@ handlers:
 # MyFXBook Community outlook
 - url: /myfx-login
   script: myfx-login.py
+
+- url: /myfx-fetch-comm
+  script: myfx-fetch-comm.py
+

@@ -58,3 +58,16 @@ class MyFXLoginCredentials (object):
 
         MyFXToken (login = name, token = data['session']).put ()
         return True
+
+
+
+class MyFXCommunityOutlook (object):
+    def __init__ (self, token):
+        self.token = token
+
+
+    def get (self):
+        url = "http://www.myfxbook.com/api/get-community-outlook.json?session=%s" % self.token
+        data = urllib2.urlopen (url).read ()
+        self.data = json.JsonReader ().read (data)
+        return not self.data['error']
