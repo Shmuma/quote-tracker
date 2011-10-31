@@ -36,3 +36,7 @@ handlers:
 
 - url: /cot/(.+)
   script: get-cot.py
+
+# MyFXBook Community outlook
+- url: /myfx-login
+  script: myfx-login.py
