@@ -142,5 +142,5 @@ class MyFXCommunityData (db.Model):
             data.entries = zlib.compress (pickle.dumps (entries))
         else:
             entries = []
-            data = MyFXCommunityData (date = date, entries = pickle.dumps ([sample]))
+            data = MyFXCommunityData (date = date, entries = zlib.compress (pickle.dumps ([sample])))
         data.put ()
