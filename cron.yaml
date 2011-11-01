@@ -6,3 +6,8 @@ cron:
 - description: fetch upcoming news events
   url: /fetch-news
   schedule: every saturday 00:00
+
+- description: fetch myfxbook community data
+  url: /myfx-fetch-comm
+  schedule: every 1 minutes
+

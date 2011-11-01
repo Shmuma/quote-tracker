@@ -42,5 +42,8 @@ handlers:
   script: myfx-login.py
 
 - url: /myfx-fetch-comm
-  script: myfx-fetch-comm.py
+  script: myfx-community.py
+
+- url: /myfx-community
+  script: myfx-community.py
 

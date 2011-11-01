@@ -2,6 +2,7 @@ import os.path
 import cPickle as pickle
 import json
 import datetime
+import zlib
 
 from google.appengine.api import urlfetch
 from google.appengine.ext import db
@@ -11,7 +12,6 @@ from google.appengine.api import memcache
 class MyFXToken (db.Model):
     login = db.StringProperty (required = True)
     token = db.StringProperty (required = True)
-
 
 
 
@@ -103,7 +103,7 @@ class MyFXCommunitySample (object):
         Constructs sample object by fetching myfxbook.
         """
         url = "http://www.myfxbook.com/api/get-community-outlook.json?session=%s" % token
-        data = urlfetch.fetch (url, headers = {'Cache-Control': 'max-age=60'}).content
+        data = urlfetch.fetch (url, headers = {'Cache-Control': 'max-age=30'}).content
         return MyFXCommunitySample (datetime.datetime.utcnow (), json.JsonReader ().read (data))
 
 
@@ -115,6 +115,32 @@ class MyFXCommunityData (db.Model):
     date = db.DateProperty (required = True)
     entries = db.BlobProperty (required = True)
 
+
+    @staticmethod
+    def get_entries (date = None, limit = 1000):
+        """
+        Obtain list of entries objects for the given date value
+        """
+        q = MyFXCommunityData.all ()
+        if date != None:
+            q.filter ("date = ", date)
+        entries = []
+        for val in q.fetch (limit):
+            entries += pickle.loads (zlib.decompress (val.entries))
+        return entries
+
+
     @staticmethod
     def append (date, sample):
-        pass
+        q = MyFXCommunityData.all ()
+        q.filter ("date = ", date)
+        data = q.fetch (1)
+        if len (data) > 0:
+            data = data[0]
+            entries = pickle.loads (zlib.decompress (data.entries))
+            entries.append (sample)
+            data.entries = zlib.compress (pickle.dumps (entries))
+        else:
+            entries = []
+            data = MyFXCommunityData (date = date, entries = pickle.dumps ([sample]))
+        data.put ()
