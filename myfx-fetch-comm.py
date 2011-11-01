@@ -14,6 +14,7 @@ class MyFXFetchCommunity (webapp.RequestHandler):
             try:
                 sample = myfx.MyFXCommunitySample.fetch (cred.token)
                 self.response.out.write ('Outlook: %s\n' % sample)
+                sample.out = self.response.out;
                 if sample.isFresh ():
                     self.response.out.write ('Data is fresh')
                 else:

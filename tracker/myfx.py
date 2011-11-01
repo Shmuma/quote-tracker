@@ -90,6 +90,8 @@ class MyFXCommunitySample (object):
         if data == None:
             return True
         dat = pickle.loads (data)
+        # self.out.write ("We have: %s\n" % self.data)
+        # self.out.write ("Stored:  %s\n" % dat)
         return dat != self.data
 
 
@@ -108,3 +110,16 @@ class MyFXCommunitySample (object):
         url = "http://www.myfxbook.com/api/get-community-outlook.json?session=%s" % token
         data = urllib2.urlopen (url).read ()
         return MyFXCommunitySample (datetime.datetime.utcnow (), json.JsonReader ().read (data))
+
+
+class MyFXCommunityData (db.Model):
+    """
+    Data with MyFXBook community outlook data.
+    Each data object holds data array for one day.
+    """
+    date = db.DateProperty (required = True)
+    entries = db.BlobProperty (required = True)
+
+    @staticmethod
+    def append (date, sample):
+        pass
