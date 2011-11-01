@@ -1,10 +1,9 @@
-import urllib2
-
 import os.path
 import cPickle as pickle
 import json
 import datetime
 
+from google.appengine.api import urlfetch
 from google.appengine.ext import db
 from google.appengine.api import memcache
 
@@ -48,9 +47,7 @@ class MyFXLoginCredentials (object):
         successfull, False if an error occured.
         """
         url = "https://www.myfxbook.com/api/login.json?email=%s&password=%s" % (name, password)
-        fd = urllib2.urlopen (url)
-        data = fd.read ()
-        fd.close ()
+        data = urlfetch.fetch (url).content
 
         data = json.JsonReader ().read (data)
         if data['error']:
@@ -90,8 +87,6 @@ class MyFXCommunitySample (object):
         if data == None:
             return True
         dat = pickle.loads (data)
-        # self.out.write ("We have: %s\n" % self.data)
-        # self.out.write ("Stored:  %s\n" % dat)
         return dat != self.data
 
 
@@ -108,7 +103,7 @@ class MyFXCommunitySample (object):
         Constructs sample object by fetching myfxbook.
         """
         url = "http://www.myfxbook.com/api/get-community-outlook.json?session=%s" % token
-        data = urllib2.urlopen (url).read ()
+        data = urlfetch.fetch (url, headers = {'Cache-Control': 'max-age=60'}).content
         return MyFXCommunitySample (datetime.datetime.utcnow (), json.JsonReader ().read (data))
 
 
