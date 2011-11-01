@@ -3,10 +3,10 @@ import urllib2
 import os.path
 import cPickle as pickle
 import json
-
+import datetime
 
 from google.appengine.ext import db
-
+from google.appengine.api import memcache
 
 
 class MyFXToken (db.Model):
@@ -61,13 +61,50 @@ class MyFXLoginCredentials (object):
 
 
 
-class MyFXCommunityOutlook (object):
-    def __init__ (self, token):
-        self.token = token
+class MyFXCommunitySample (object):
+    """
+    Represents single unique sample of community outlook data. Daily samples are
+    stores into single blob in MyFXCommunityDay for storage efficiency.
+    """
+    last_data_key = "MyFXCommunitySample_last"
+
+    def __init__ (self, dt, json_data):
+        """
+        Initialize comunity sample object from json: http://www.myfxbook.com/api
+        """
+        if json_data['error']:
+            raise ValueError
+        self.dt = dt
+        self.data = json_data
 
 
-    def get (self):
-        url = "http://www.myfxbook.com/api/get-community-outlook.json?session=%s" % self.token
+    def __str__ (self):
+        return "<MyFXCommunitySample: %s, data = %s>" % (self.dt, self.data)
+
+
+    def isFresh (self):
+        """
+        Obtains previously stored sample's data from memcache and compares it with own data.
+        """
+        data = memcache.get (key = MyFXCommunitySample.last_data_key)
+        if data == None:
+            return True
+        dat = pickle.loads (data)
+        return dat != self.data
+
+
+    def updateCache (self):
+        """
+        Puts data in memcache.
+        """
+        memcache.set (key = MyFXCommunitySample.last_data_key, value = pickle.dumps (self.data))
+
+
+    @staticmethod
+    def fetch (token):
+        """
+        Constructs sample object by fetching myfxbook.
+        """
+        url = "http://www.myfxbook.com/api/get-community-outlook.json?session=%s" % token
         data = urllib2.urlopen (url).read ()
-        self.data = json.JsonReader ().read (data)
-        return not self.data['error']
+        return MyFXCommunitySample (datetime.datetime.utcnow (), json.JsonReader ().read (data))

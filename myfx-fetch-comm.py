@@ -4,8 +4,6 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 
 from tracker import myfx
 
-import pprint
-
 
 class MyFXFetchCommunity (webapp.RequestHandler):
     def get (self):
@@ -13,12 +11,17 @@ class MyFXFetchCommunity (webapp.RequestHandler):
         if not cred.valid:
             self.response.out.write ('We have no credentials, exit')
         else:
-            outlook = myfx.MyFXCommunityOutlook (cred.token)
-            if outlook.get ():
-                pp = pprint.PrettyPrinter ()
-                self.response.out.write ('Outlook: %s' % pp.pformat (outlook.data))
-            else:
+            try:
+                sample = myfx.MyFXCommunitySample.fetch (cred.token)
+                self.response.out.write ('Outlook: %s\n' % sample)
+                if sample.isFresh ():
+                    self.response.out.write ('Data is fresh')
+                else:
+                    self.response.out.write ('Data is the same as before')
+                sample.updateCache ()
+            except:
                 self.response.out.write ('Outlook fetch failure')
+                raise
 
 
 app = webapp.WSGIApplication ([('/myfx-fetch-comm', MyFXFetchCommunity)], debug=True)
