@@ -46,4 +46,3 @@ handlers:
 
 - url: /myfx-community
   script: myfx-community.py
-
