@@ -1,6 +1,9 @@
 import datetime
 import os.path
 
+from google.appengine.dist import use_library
+use_library('django', '0.96')
+
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp import template
 from google.appengine.ext import webapp
@@ -32,14 +35,27 @@ class MyFXFetchCommunity (webapp.RequestHandler):
 
 class MyFXCommunity (webapp.RequestHandler):
     def get (self):
-        # collect data for display
-        entries_count = 0
-        for entry in myfx.MyFXCommunityData.get_entries ():
-            entries_count += 1
+        # if no options passed, display usage help and exit
+        try:
+            d = datetime.datetime.strptime (self.request.get ('date', ''), '%Y-%m-%d')
+        except ValueError:
+            self.show_help ()
+            return
 
-        path = os.path.join (os.path.dirname (__file__), "tmpl/myfx-community.html")
-        self.response.out.write (template.render (path, { "entries_count": entries_count }))
+        self.response.headers['Content-Type'] = 'text/csv'
+        self.response.headers['Content-Disposition'] = 'filename=myfx-community-%s.csv' % self.request.get ('date', '')
+        self.response.out.write (myfx.MyFXCommunitySample.csvHeaderString () + '\n')
+        
+        for entry in myfx.MyFXCommunityData.get_entries (d):
+            self.response.out.write (entry.csvString () + '\n')
 
+
+    def show_help (self):
+        """
+        Displays template with usage help
+        """
+        path = os.path.join (os.path.dirname (__file__), "tmpl/myfx-community-help.html")
+        self.response.out.write (template.render (path, {}))
 
 
 app = webapp.WSGIApplication ([('/myfx-fetch-comm', MyFXFetchCommunity),

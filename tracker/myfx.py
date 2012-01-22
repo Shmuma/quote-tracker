@@ -107,6 +107,89 @@ class MyFXCommunitySample (object):
         return MyFXCommunitySample (datetime.datetime.utcnow (), json.JsonReader ().read (data))
 
 
+    @staticmethod
+    def _csvTopLevelFields ():
+        """
+        Fields from top-level json to be displayed in CSV
+        """
+        return ['dateTime']
+
+
+    @staticmethod
+    def _csvGeneralFields ():
+        """
+        Returns a list with fields needed from 'general' section of data hash
+        """
+        return ['totalFunds', 'fundsWon', 'fundsLost',
+                'realAccountsPercentage', 'profitablePercentage', 'nonProfitablePercentage',
+                'demoAccountsPercentage', 
+                'averageDeposit', 'averageAccountProfit', 'averageAccountLoss']
+
+
+    @staticmethod
+    def _csvSymbolFields ():
+        """
+        Returns a list with fields needed for each symbol
+        """
+        return ['longPositions', 'shortPositions', 'totalPositions',
+                'longVolume', 'shortVolume',
+                'longPercentage', 'shortPercentage',
+                'avgLongPrice', 'avgShortPrice']
+
+
+    @staticmethod
+    def symbols ():
+        """
+        Returns a list of symbols names
+        """
+        return ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCAD', 'AUDUSD',
+                'USDCHF', 'GBPJPY', 'EURJPY', 'EURCHF', 'EURGBP']
+
+
+    @staticmethod
+    def csvHeaderString ():
+        """
+        Return a string with CSV header
+        """
+        syms = []
+        fields = MyFXCommunitySample._csvSymbolFields ()
+        for s in MyFXCommunitySample.symbols ():
+            syms += map (lambda name: "%s_%s" % (s, name), fields)
+        return ';'.join (MyFXCommunitySample._csvTopLevelFields () +
+                         MyFXCommunitySample._csvGeneralFields () + syms)
+
+
+    def csvString (self):
+        """
+        Return a CSV representation of a sample
+        """
+        def decomma (s):
+            return str (s).replace (',', '')
+
+        res = []
+        for k in MyFXCommunitySample._csvTopLevelFields ():
+            if k == 'dateTime':
+                res.append ("%s" % self.dt)
+            else:
+                res.append (decomma (self.data.get (k, '')))
+
+        general = self.data.get ('general', {})
+        for k in MyFXCommunitySample._csvGeneralFields ():
+            res.append (decomma (general.get (k, '')))
+        
+        symbols = {}
+        for item in self.data.get ('symbols', []):
+            symbols[item['name']] = item
+        
+        for sym in MyFXCommunitySample.symbols ():
+            data = symbols.get (sym, {})
+            for k in MyFXCommunitySample._csvSymbolFields ():
+                res.append (decomma (data.get (k, '')))
+
+        return ';'.join (res)
+
+
+
 class MyFXCommunityData (db.Model):
     """
     Data with MyFXBook community outlook data.
