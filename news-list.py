@@ -39,10 +39,10 @@ class NewsPage (webapp.RequestHandler):
             self.response.headers['Content-Type'] = 'text/plain; charset=cp1251'
             self.response.out.write ("timestamp,importance,title,curr,prev,fore\n")
             for ev in q:
-                self.response.out.write (("%d,%d,%s,%s,%s,%s,%s,%s,%s\n" % (time.mktime (ev.when.timetuple ()),
+                self.response.out.write (("%d,%s,%s,%s,%s,%s\n" % (time.mktime (ev.when.timetuple ()),
                                                                             ev.importance, norm_str (ev.title),
                                                                             norm_str (ev.curr),
-                                                                            norm_str (ev.pred), norm_str (ev.fore))).encode ("cp1251"))
+                                                                            norm_str (ev.pred), norm_str (ev.fore))))
         else:
             res = []
             index = 1
